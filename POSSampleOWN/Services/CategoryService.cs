@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using POSSampleOWN.Data;
 using POSSampleOWN.DTOs;
 using POSSampleOWN.Models;
+using POSSampleOWN.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,9 +19,10 @@ namespace POSSampleOWN.Services
             _db = db;
         }
 
-        public async Task<List<CategoryDTO>> GetAllCategoriesAsync()
+        #region get all categories
+        public async Task<ApiResponse<List<CategoryDTO>>> GetAllCategoriesAsync()
         {
-            return await _db.Categories
+            var categories = await _db.Categories
                 .AsNoTracking()
                 .Select(c => new CategoryDTO
                 {
@@ -29,9 +31,13 @@ namespace POSSampleOWN.Services
                     Description = c.Description
                 })
                 .ToListAsync();
-        }
 
-        public async Task<CategoryResponseDTO> GetByIdAsync(int id)
+            return ApiResponse<List<CategoryDTO>>.Success(categories, "Categories retrieved successfully.");
+        }
+        #endregion
+
+        #region get category by id
+        public async Task<ApiResponse<CategoryDTO>> GetByIdAsync(int id)
         {
             var category = await _db.Categories
                 .AsNoTracking()
@@ -40,61 +46,68 @@ namespace POSSampleOWN.Services
 
             if (category is null)
             {
-                return new CategoryResponseDTO
-                {
-                    IsSuccess = false,
-                    Message = "Category not found."
-                };
+                return ApiResponse<CategoryDTO>.Fail("Category not found.");
             }
 
-            return new CategoryResponseDTO
+            var data = new CategoryDTO
             {
-                IsSuccess = true,
-                Message = "Category retrieved successfully.",
-                Data = new CategoryDTO
-                {
-                    Id = category.Id,
-                    Name = category.Name,
-                    Description = category.Description
-                }
+                Id = category.Id,
+                Name = category.Name,
+                Description = category.Description
             };
-        }
 
-        public async Task<CategoryResponseDTO> CreateAsync(CreateCategoryDTO request)
+            return ApiResponse<CategoryDTO>.Success(data, "Category retrieved successfully.");
+        }
+        #endregion
+
+        #region create category
+        public async Task<ApiResponse<CategoryDTO>> CreateAsync(CreateCategoryDTO request)
         {
+            if (request is null)
+            {
+                return ApiResponse<CategoryDTO>.Fail("Category cannot be null.");
+            }
+
             var newCategory = new Category
             {
-                Name = request.Name,
-                Description = request.Description,
+                Name = request.Name.Trim(),
+                Description = request.Description!.Trim(),
                 CreatedAt = DateTime.UtcNow
             };
 
-            await _db.Categories.AddAsync(newCategory);
-            var result = await _db.SaveChangesAsync() > 0;
+            _db.Categories.Add(newCategory);
 
-            return new CategoryResponseDTO
+            var result = await _db.SaveChangesAsync();
+
+            if (result <= 0)
             {
-                IsSuccess = result,
-                Message = result ? "Category created successfully." : "Failed to create category.",
-                Data = result ? new CategoryDTO
-                {
-                    Id = newCategory.Id,
-                    Name = newCategory.Name,
-                    Description = newCategory.Description
-                } : null
-            };
-        }
+                return ApiResponse<CategoryDTO>.Fail("Failed to create category.");
+            }
 
-        public async Task<CategoryResponseDTO> UpdateAsync(int id, UpdateCategoryDTO request)
+            var data = new CategoryDTO
+            {
+                Id = newCategory.Id,
+                Name = newCategory.Name,
+                Description = newCategory.Description
+            };
+
+            return ApiResponse<CategoryDTO>.Success(data, "Category created successfully.");
+        }
+        #endregion
+
+        #region update category
+        public async Task<ApiResponse<CategoryDTO>> UpdateAsync(int id, UpdateCategoryDTO request)
         {
+            if (request is null)
+            {
+                return ApiResponse<CategoryDTO>.Fail("Category cannot be null.");
+            }
+
             var category = await _db.Categories.FirstOrDefaultAsync(c => c.Id == id);
+            
             if (category is null)
             {
-                return new CategoryResponseDTO
-                {
-                    IsSuccess = false,
-                    Message = "Category not found."
-                };
+                return ApiResponse<CategoryDTO>.Fail("Category not found.");
             }
 
             if (!string.IsNullOrEmpty(request.Name))
@@ -103,47 +116,52 @@ namespace POSSampleOWN.Services
             if (request.Description != null)
                 category.Description = request.Description;
 
-            var result = await _db.SaveChangesAsync() > 0;
+            var result = await _db.SaveChangesAsync();
 
-            return new CategoryResponseDTO
+            if (result <= 0)
             {
-                IsSuccess = result,
-                Message = result ? "Category updated successfully." : "No changes were made."
-            };
-        }
+                return ApiResponse<CategoryDTO>.Fail("Failed to update category.");
+            }
 
-        public async Task<CategoryResponseDTO> DeleteAsync(int id)
+            var data = new CategoryDTO
+            {
+                Id = category.Id,
+                Name = category.Name,
+                Description = category.Description
+            };
+
+            return ApiResponse<CategoryDTO>.Success(data, "Category updated successfully.");
+        }
+        #endregion
+
+        #region delete category
+        public async Task<ApiResponse<bool>> DeleteAsync(int id)
         {
             var category = await _db.Categories
-                        .Include(c => c.Products)
-                        .FirstOrDefaultAsync(c => c.Id == id);
+                .Include(c => c.Products)
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if (category is null)
             {
-                return new CategoryResponseDTO
-                {
-                    IsSuccess = false,
-                    Message = "Category not found."
-                };
+                return ApiResponse<bool>.Fail("Category not found.");
             }
 
             if (category.Products != null && category.Products.Any(p => !p.DeleteFlag))
             {
-                return new CategoryResponseDTO
-                {
-                    IsSuccess = false,
-                    Message = "Category cannot be deleted because it contains active products."
-                };
+                return ApiResponse<bool>.Fail("Category cannot be deleted because it contains active products.");
             }
 
             category.DeleteFlag = true;
-            var success = await _db.SaveChangesAsync() > 0;
 
-            return new CategoryResponseDTO
+            var success = await _db.SaveChangesAsync();
+
+            if (success <= 0)
             {
-                IsSuccess = success,
-                Message = success ? "Category deleted successfully." : "Failed to delete category."
-            };
+                return ApiResponse<bool>.Fail("Failed to delete category.");
+            }
+
+            return ApiResponse<bool>.Success(true, "Category deleted successfully.");
         }
+        #endregion
     }
 }

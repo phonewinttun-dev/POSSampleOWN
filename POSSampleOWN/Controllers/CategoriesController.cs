@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using POSSampleOWN.DTOs;
+using POSSampleOWN.Responses;
 using POSSampleOWN.Services;
 using System.Threading.Tasks;
 
@@ -16,58 +17,88 @@ namespace POSSampleOWN.Controllers
             _categoryService = categoryService;
         }
 
-        // GET: api/categories/allCategories
-        [HttpGet("allCategories")]
-        public async Task<IActionResult> GetAllCategories()
+        // GET: api/categories/
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
         {
             var categories = await _categoryService.GetAllCategoriesAsync();
             return Ok(categories);
         }
 
-        // GET: api/categories/categoriesById/{id}
-        [HttpGet("categoriesById/{id}")]
-        public async Task<IActionResult> GetCategoryById(int id)
+        // GET: api/categories/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
         {
             var result = await _categoryService.GetByIdAsync(id);
             if (!result.IsSuccess)
             {
-                return result.Message.Contains("not found") ? NotFound(result) : BadRequest(result);
+                if (result.Message.Contains("not found"))
+                    return NotFound(result);
+
+                return BadRequest(result);
             }
             return Ok(result);
         }
 
-        // POST: api/categories/categoryCreate
-        [HttpPost("categoryCreate")]
-        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDTO request)
+        // POST: api/categories/
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CreateCategoryDTO request)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Invalid category data."
+                });
+
             var result = await _categoryService.CreateAsync(request);
+
             if (!result.IsSuccess)
             {
-                return StatusCode(500, result);
+                return BadRequest(result);
             }
-            return Ok(result);
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = result.Data!.Id },
+                result);
         }
 
-        // PATCH: api/categories/updateCategory/{id}
-        [HttpPatch("updateCategory/{id}")]
-        public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryDTO request)
+        // PATCH: api/categories/{id}
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateCategoryDTO request)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Invalid category data."
+                });
+
             var result = await _categoryService.UpdateAsync(id, request);
+            
             if (!result.IsSuccess)
             {
-                return result.Message.Contains("not found") ? NotFound(result) : StatusCode(500, result);
+                if (result.Message.Contains("not found"))
+                    return NotFound(result);
+
+                return BadRequest(result);
             }
+
             return Ok(result);
         }
 
-        // DELETE: api/categories/deleteCategory/{id}
-        [HttpDelete("deleteCategory/{id}")]
+        // DELETE: api/categories/{id}
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var result = await _categoryService.DeleteAsync(id);
             if (!result.IsSuccess)
             {
-                return result.Message.Contains("not found") ? NotFound(result) : BadRequest(result);
+                if (result.Message.Contains("not found"))
+                    return NotFound(result);
+
+                return BadRequest(result);
             }
             return Ok(result);
         }

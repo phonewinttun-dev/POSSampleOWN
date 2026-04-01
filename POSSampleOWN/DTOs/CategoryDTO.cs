@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace POSSampleOWN.DTOs
 {
@@ -28,10 +28,4 @@ namespace POSSampleOWN.DTOs
         public string? Description { get; set; }
     }
 
-    public class CategoryResponseDTO
-    {
-        public bool IsSuccess { get; set; }
-        public string? Message { get; set; }
-        public CategoryDTO? Data { get; set; }
-    }
 }

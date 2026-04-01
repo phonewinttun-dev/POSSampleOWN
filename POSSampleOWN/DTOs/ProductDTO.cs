@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace POSSampleOWN.DTOs
 {
@@ -24,6 +24,9 @@ namespace POSSampleOWN.DTOs
         public decimal Price { get; set; }
         [Required]
         public int StockQuantity { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+
         [Required]
         public int CategoryId { get; set; }
         // public int CreatedBy { get; set; }
@@ -37,20 +40,13 @@ namespace POSSampleOWN.DTOs
         [MaxLength(500)]
         public string? Description { get; set; }
         [Required]
-        public decimal Price { get; set; }
+        public decimal? Price { get; set; }
         [Required]
-        public int StockQuantity { get; set; }
+        public int? StockQuantity { get; set; }
         [Required]
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
         public bool? DeleteFlag { get; set; }
         // public int UpdatedBy { get; set; }
     }
 
-    public class ProductResponseDTO
-    {
-        public bool IsSuccess { get; set; }
-        public string Message { get; set; } = null!;
-        public ProductDTO? Data { get; set; }
-
-    }
 }

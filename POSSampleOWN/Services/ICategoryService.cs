@@ -1,15 +1,16 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using POSSampleOWN.DTOs;
+using POSSampleOWN.Responses;
 
 namespace POSSampleOWN.Services
 {
     public interface ICategoryService
     {
-        Task<List<CategoryDTO>> GetAllCategoriesAsync();
-        Task<CategoryResponseDTO> GetByIdAsync(int id);
-        Task<CategoryResponseDTO> CreateAsync(CreateCategoryDTO request);
-        Task<CategoryResponseDTO> UpdateAsync(int id, UpdateCategoryDTO request);
-        Task<CategoryResponseDTO> DeleteAsync(int id);
+        Task<ApiResponse<List<CategoryDTO>>> GetAllCategoriesAsync();
+        Task<ApiResponse<CategoryDTO>> GetByIdAsync(int id);
+        Task<ApiResponse<CategoryDTO>> CreateAsync(CreateCategoryDTO request);
+        Task<ApiResponse<CategoryDTO>> UpdateAsync(int id, UpdateCategoryDTO request);
+        Task<ApiResponse<bool>> DeleteAsync(int id);
     }
 }
