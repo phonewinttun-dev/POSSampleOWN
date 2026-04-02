@@ -367,3 +367,6 @@ logs/
 
 # Migrations
 Migrations/
+
+# Settings
+appsettings.json

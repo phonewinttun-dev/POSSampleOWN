@@ -195,6 +195,11 @@ namespace POSSampleOWN.Services
 
             return ApiResponse<bool>.Success(true, "Product deleted successfully!");
         }
+
+        public Task<ApiResponse<List<ProductDTO>>> GetAllProductsAsync()
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }
