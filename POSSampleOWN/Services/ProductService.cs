@@ -24,7 +24,7 @@ namespace POSSampleOWN.Services
             .Where(p => !p.DeleteFlag);
 
         #region get all products
-        public async Task<ApiResponse<List<ProductDTO>>> GetAllAsync()
+        public async Task<List<ProductDTO>> GetAllAsync()
         {
             var products = await _db.Products
                 .AsNoTracking()
@@ -40,21 +40,18 @@ namespace POSSampleOWN.Services
                 })
                 .ToListAsync();
 
-            return ApiResponse<List<ProductDTO>>.Success(products, "Products retrieved successfully.");
+            return products;
         }
 
         #endregion
 
         #region get active products by id
-        public async Task<ApiResponse<ProductDTO>> GetByIdAsync(int id)
+        public async Task<ProductDTO> GetByIdAsync(int id)
         {
             var product = await ActiveProductQuery
                 .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (product is null)
-            {
-                return ApiResponse<ProductDTO>.Fail("Product not found.");
-            }
+            if (product is null) throw new Exception("Product not found");
 
             var data = new ProductDTO
             {
@@ -66,12 +63,12 @@ namespace POSSampleOWN.Services
                 CategoryId = product.CategoryId
             };
 
-            return ApiResponse<ProductDTO>.Success(data, "Product retrieved successfully.");
+            return data;
         }
         #endregion
 
         #region get available products
-        public async Task<ApiResponse<List<ProductDTO>>> GetAvailableProductsAsync()
+        public async Task<List<ProductDTO>> GetAvailableProductsAsync()
         {
             var products = await ActiveProductQuery
                 .Where(p => p.StockQuantity > 0)
@@ -86,18 +83,13 @@ namespace POSSampleOWN.Services
                 })
                 .ToListAsync();
 
-            return ApiResponse<List<ProductDTO>>.Success(products, "Available products retrieved successfully.");
+            return products;
         }
         #endregion
 
         #region create product
-        public async Task<ApiResponse<ProductDTO>> CreateAsync(CreateProductDTO request)
+        public async Task<ProductDTO> CreateAsync(CreateProductDTO request)
         {
-            if (request is null)
-            {
-                return ApiResponse<ProductDTO>.Fail("Product cannot be null.");
-            }
-
             var newProduct = new Product
             {
                 Name = request.Name.Trim(),
@@ -110,12 +102,7 @@ namespace POSSampleOWN.Services
 
             _db.Products.Add(newProduct);
 
-            var result = await _db.SaveChangesAsync();
-
-            if (result <= 0)
-            {
-                return ApiResponse<ProductDTO>.Fail("Failed to create product.");
-            }
+            await _db.SaveChangesAsync();
 
             var data = new ProductDTO
             {
@@ -128,24 +115,17 @@ namespace POSSampleOWN.Services
                 DeleteFlag = newProduct.DeleteFlag
             };
 
-            return ApiResponse<ProductDTO>.Success(data, "Product created successfully.");
+            return data;
         }
         #endregion
 
         #region update product
-        public async Task<ApiResponse<ProductDTO>> UpdateAsync(int id, UpdateProductDTO request)
+        public async Task<ProductDTO> UpdateAsync(int id, UpdateProductDTO request)
         {
-            if (request is null)
-            {
-                return ApiResponse<ProductDTO>.Fail("Request cannot be null.");
-            }
-
             var product = await _db.Products.FirstOrDefaultAsync(p => p.Id == id);
+
+            if (product is null) throw new Exception("Product not found");
             
-            if (product is null)
-            {
-                return ApiResponse<ProductDTO>.Fail("Product not found.");
-            }
 
             if (!string.IsNullOrWhiteSpace(request.Name)) product.Name = request.Name.Trim();
             if (!string.IsNullOrWhiteSpace(request.Description)) product.Description = request.Description.Trim();
@@ -155,12 +135,7 @@ namespace POSSampleOWN.Services
 
             product.UpdatedAt = DateTime.UtcNow;
 
-            var result = await _db.SaveChangesAsync();
-
-            if (result <= 0)
-            {
-                return ApiResponse<ProductDTO>.Fail("Failed to update product.");
-            }
+            await _db.SaveChangesAsync();
 
             var data = new ProductDTO
             {
@@ -172,28 +147,23 @@ namespace POSSampleOWN.Services
                 CategoryId = product.CategoryId
             };
 
-            return ApiResponse<ProductDTO>.Success(data, "Product updated successfully!");
+            return data;
         }
         #endregion
 
         #region delete product
-        public async Task<ApiResponse<bool>> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var product = await _db.Products.FirstOrDefaultAsync(p => p.Id == id);
 
-            if (product is null)
-            {
-                return ApiResponse<bool>.Fail("Product not found.");
-            }
+            if (product is null) throw new Exception("Product not found");
 
             product.DeleteFlag = true;
             product.UpdatedAt = DateTime.UtcNow;
 
-            var result = await _db.SaveChangesAsync() > 0;
+            await _db.SaveChangesAsync();
 
-            if (!result) return ApiResponse<bool>.Fail("Failed to delete product.");
-
-            return ApiResponse<bool>.Success(true, "Product deleted successfully!");
+            return true;
         }
 
         public Task<ApiResponse<List<ProductDTO>>> GetAllProductsAsync()
