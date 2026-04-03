@@ -7,10 +7,10 @@ namespace POSSampleOWN.Services
 {
     public interface ICategoryService
     {
-        Task<ApiResponse<List<CategoryDTO>>> GetAllCategoriesAsync();
-        Task<ApiResponse<CategoryDTO>> GetByIdAsync(int id);
-        Task<ApiResponse<CategoryDTO>> CreateAsync(CreateCategoryDTO request);
-        Task<ApiResponse<CategoryDTO>> UpdateAsync(int id, UpdateCategoryDTO request);
-        Task<ApiResponse<bool>> DeleteAsync(int id);
+        Task<List<CategoryDTO>> GetAllAsync();
+        Task<CategoryDTO> GetByIdAsync(int id);
+        Task<CategoryDTO> CreateAsync(CreateCategoryDTO request);
+        Task<CategoryDTO> UpdateAsync(int id, UpdateCategoryDTO request);
+        Task<bool> DeleteAsync(int id);
     }
 }
