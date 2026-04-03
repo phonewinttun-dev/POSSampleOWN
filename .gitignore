@@ -368,3 +368,4 @@ logs/
 # Migrations
 Migrations/
 /module_checklist.md
+*.postman_collection
