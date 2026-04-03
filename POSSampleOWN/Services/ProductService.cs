@@ -68,7 +68,7 @@ namespace POSSampleOWN.Services
         #endregion
 
         #region get available products
-        public async Task<List<ProductDTO>> GetAvailableProductsAsync()
+        public async Task<List<ProductDTO>> GetAvailableAsync()
         {
             var products = await ActiveProductQuery
                 .Where(p => p.StockQuantity > 0)
@@ -124,20 +124,29 @@ namespace POSSampleOWN.Services
         {
             var product = await _db.Products.FirstOrDefaultAsync(p => p.Id == id);
 
-            if (product is null) throw new Exception("Product not found");
-            
+            if (product is null || product.DeleteFlag == true)
+                throw new Exception("Product not found");
 
-            if (!string.IsNullOrWhiteSpace(request.Name)) product.Name = request.Name.Trim();
-            if (!string.IsNullOrWhiteSpace(request.Description)) product.Description = request.Description.Trim();
-            if (request.Price.HasValue) product.Price = request.Price.Value;
-            if (request.StockQuantity.HasValue) product.StockQuantity = request.StockQuantity.Value;
-            if (request.CategoryId.HasValue) product.CategoryId = request.CategoryId.Value;
+            if (request.Name != null)
+                product.Name = request.Name.Trim();
+
+            if (request.Description != null)
+                product.Description = request.Description.Trim();
+
+            if (request.Price != null)
+                product.Price = request.Price.Value;
+
+            if (request.StockQuantity != null)
+                product.StockQuantity = request.StockQuantity.Value;
+
+            if (request.CategoryId != null)
+                product.CategoryId = request.CategoryId.Value;
 
             product.UpdatedAt = DateTime.UtcNow;
 
             await _db.SaveChangesAsync();
 
-            var data = new ProductDTO
+            return new ProductDTO
             {
                 Id = product.Id,
                 Name = product.Name,
@@ -146,8 +155,6 @@ namespace POSSampleOWN.Services
                 StockQuantity = product.StockQuantity,
                 CategoryId = product.CategoryId
             };
-
-            return data;
         }
         #endregion
 

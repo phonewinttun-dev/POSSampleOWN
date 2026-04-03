@@ -114,13 +114,18 @@ namespace POSSampleOWN.Services
         public async Task<bool> DeleteAsync(int id)
         {
             var category = await _db.Categories
+                .Include(c => c.Products)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
-            if (category is null) throw new Exception("Category not found!");
+            if (category is null)
+                throw new Exception("Category not found!");
+
+            if (category.Products != null && category.Products.Any(p => !p.DeleteFlag))
+                throw new Exception("Cannot delete category with existing products.");
 
             category.DeleteFlag = true;
 
-            var success = await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync();
 
             return true;
         }
