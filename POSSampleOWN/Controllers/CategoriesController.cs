@@ -21,7 +21,8 @@ namespace POSSampleOWN.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var categories = await _categoryService.GetAllCategoriesAsync();
+            var categories = await _categoryService.GetAllAsync();
+
             return Ok(categories);
         }
 
@@ -29,15 +30,14 @@ namespace POSSampleOWN.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var result = await _categoryService.GetByIdAsync(id);
-            if (!result.IsSuccess)
-            {
-                if (result.Message.Contains("not found"))
-                    return NotFound(result);
+            var category = await _categoryService.GetByIdAsync(id);
 
-                return BadRequest(result);
+            if (category == null)
+            {
+                return NotFound(ApiResponse<CategoryDTO>.Fail("Category not found."));
             }
-            return Ok(result);
+
+            return Ok(ApiResponse<CategoryDTO>.Success(category));
         }
 
         // POST: api/categories/
@@ -50,18 +50,24 @@ namespace POSSampleOWN.Controllers
                     IsSuccess = false,
                     Message = "Invalid category data."
                 });
-
-            var result = await _categoryService.CreateAsync(request);
-
-            if (!result.IsSuccess)
+            try
             {
-                return BadRequest(result);
-            }
+                var createdCategory = await _categoryService.CreateAsync(request);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = result.Data!.Id },
-                result);
+                if (createdCategory is null)
+                {
+                    return BadRequest(ApiResponse<object>.Fail("Failed to create category."));
+                }
+
+                return CreatedAtAction(
+                    nameof(GetById),
+                    new { id = createdCategory.Id },
+                    ApiResponse<CategoryDTO>.Success(createdCategory, "Category created successfully."));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<object>.Fail($"An error occurred while creating the category: {ex.Message}"));
+            }
         }
 
         // PATCH: api/categories/{id}
@@ -74,33 +80,43 @@ namespace POSSampleOWN.Controllers
                     IsSuccess = false,
                     Message = "Invalid category data."
                 });
-
-            var result = await _categoryService.UpdateAsync(id, request);
-            
-            if (!result.IsSuccess)
+            try
             {
-                if (result.Message.Contains("not found"))
-                    return NotFound(result);
+                var updatedCategory = await _categoryService.UpdateAsync(id, request);
 
-                return BadRequest(result);
+                if (updatedCategory is null)
+                {
+                    return NotFound(ApiResponse<object>.Fail("Category not found."));
+                }
+
+                return Ok(ApiResponse<CategoryDTO>.Success(updatedCategory, "Category updated successfully."));
             }
-
-            return Ok(result);
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<object>.Fail($"An error occurred while updating the category: {ex.Message}"));
+            }
         }
 
         // DELETE: api/categories/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
-        {
-            var result = await _categoryService.DeleteAsync(id);
-            if (!result.IsSuccess)
+        {      
+            if (!ModelState.IsValid)
+                return BadRequest(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Invalid product ID."
+                });
+            try
             {
-                if (result.Message.Contains("not found"))
-                    return NotFound(result);
+                var result = await _categoryService.DeleteAsync(id);
 
-                return BadRequest(result);
+                return Ok(ApiResponse<object>.Success(result, "Deleted successfully."));
             }
-            return Ok(result);
+            catch (Exception ex)
+            {
+                return NotFound(ApiResponse<object>.Fail(ex.Message));
+            }
         }
     }
 }

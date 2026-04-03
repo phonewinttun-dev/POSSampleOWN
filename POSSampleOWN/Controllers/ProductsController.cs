@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using POSSampleOWN.DTOs;
+using POSSampleOWN.Models;
 using POSSampleOWN.Responses;
 using POSSampleOWN.Services;
 using System.Threading.Tasks;
@@ -21,32 +22,40 @@ namespace POSSampleOWN.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var products = await _productService.GetAllProductsAsync();
-            return Ok(products);
+            var products = await _productService.GetAllAsync();
+
+            return Ok(ApiResponse<List<ProductDTO>>.Success(products));
         }
 
         // GET: api/products/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var result = await _productService.GetByIdAsync(id);
-
-            if (!result.IsSuccess)
+            try
             {
-                if (result.Message.Contains("not found"))
-                    return NotFound(result);
+                var product = await _productService.GetByIdAsync(id);
 
-                return BadRequest(result);
+                if (product is null)
+                {
+                    return NotFound(ApiResponse<ProductDTO>.Fail("Product not found."));
+                }
+
+                return Ok(ApiResponse<ProductDTO>.Success(product));
             }
-            return Ok(result);
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<ProductDTO>.Fail($"An error occurred while retrieving the product: {ex.Message}"));
+            }
+            
         }
 
         // GET: api/products/availableProducts
         [HttpGet("availableProducts")]
         public async Task<IActionResult> GetAvailable()
         {
-            var result = await _productService.GetAvailableProductsAsync();
-            return Ok(result);
+            var availableProducts = await _productService.GetAvailableAsync();
+         
+            return Ok(availableProducts);
         }
 
         // POST: api/products/
@@ -60,17 +69,33 @@ namespace POSSampleOWN.Controllers
                     Message = "Invalid product data."
                 });
 
-            var result = await _productService.CreateAsync(createRequest);
-            
-            if (!result.IsSuccess)
+            try
             {
-                return BadRequest(result);
-            }
+                var createdProduct = await _productService.CreateAsync(createRequest);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = result.Data!.Id },
-                result);
+                if (createdProduct is null)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Failed to create product."
+                    });
+                }
+
+                return CreatedAtAction(
+                    nameof(GetById),
+                    new { id = createdProduct.Id },
+                    ApiResponse<ProductDTO>.Success(createdProduct, "Product created successfully."));
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An error occurred while creating the product: {ex.Message}"
+                });
+            }
         }
 
         // PATCH: api/products/{id}
@@ -84,32 +109,43 @@ namespace POSSampleOWN.Controllers
                     Message = "Invalid product data."
                 });
 
-            var result = await _productService.UpdateAsync(id, updateRequest);
-
-            if (!result.IsSuccess)
+            try 
             {
-                if (result.Message.Contains("not found"))
-                    return NotFound(result);
+                var updatedProduct = await _productService.UpdateAsync(id, updateRequest);
+                
+                if (updatedProduct is null)
+                {
+                    return NotFound(ApiResponse<ProductDTO>.Fail("Product not found."));
+                }
 
-                return BadRequest(result);
+                return Ok(ApiResponse<ProductDTO>.Success(updatedProduct, "Updated successfully."));
             }
-
-            return Ok(result);
+            catch (Exception ex)
+            {
+                return NotFound(ApiResponse<object>.Fail(ex.Message));
+            }
         }
 
         // DELETE: api/products/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _productService.DeleteAsync(id);
-            if (!result.IsSuccess)
+            if (!ModelState.IsValid)
+                return BadRequest(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Invalid product ID."
+                });
+            try
             {
-                if (result.Message.Contains("not found"))
-                    return NotFound(result);
+                var result = await _productService.DeleteAsync(id);
 
-                return BadRequest(result);
+                return Ok(ApiResponse<object>.Success(result, "Deleted successfully."));
             }
-            return Ok(result);
+            catch (Exception ex)
+            {
+                return NotFound(ApiResponse<object>.Fail(ex.Message));
+            }
         }
     }
 }

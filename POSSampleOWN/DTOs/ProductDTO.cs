@@ -39,13 +39,10 @@ namespace POSSampleOWN.DTOs
         public string? Name { get; set; }
         [MaxLength(500)]
         public string? Description { get; set; }
-        [Required]
         public decimal? Price { get; set; }
-        [Required]
         public int? StockQuantity { get; set; }
-        [Required]
         public int? CategoryId { get; set; }
-        public bool? DeleteFlag { get; set; }
+
         // public int UpdatedBy { get; set; }
     }
 
