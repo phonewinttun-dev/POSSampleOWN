@@ -11,6 +11,7 @@ namespace POSSampleOWN.Services
         Task<CategoryDTO> GetByIdAsync(int id);
         Task<CategoryDTO> CreateAsync(CreateCategoryDTO request);
         Task<CategoryDTO> UpdateAsync(int id, UpdateCategoryDTO request);
+        Task<List<CategoryDTO>> GetCategoriesByTermAsync(string term);
         Task<bool> DeleteAsync(int id);
     }
 }

@@ -118,5 +118,28 @@ namespace POSSampleOWN.Controllers
                 return NotFound(ApiResponse<object>.Fail(ex.Message));
             }
         }
+
+        // GET: api/categories/search?term=searchTerm
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+            {
+                return BadRequest(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Search term cannot be empty."
+                });
+            }
+            try
+            {
+                var results = await _categoryService.GetCategoriesByTermAsync(term);
+                return Ok(ApiResponse<List<CategoryDTO>>.Success(results, "Successfully Retrieved"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<CategoryDTO>.Fail($"An error occurred while retrieving: {ex.Message}"));
+            }
+        }
     }
 }

@@ -182,17 +182,18 @@ namespace POSSampleOWN.Services
         {
             var products = await ActiveProductQuery
                 .Where(p => p.Name.Contains(term) || (p.Description != null && p.Description.Contains(term)))
+                .Select(p => new ProductDTO
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    StockQuantity = p.StockQuantity,
+                    CategoryId = p.CategoryId
+                })
                 .ToListAsync();
-            var productDTOs = products.Select(p => new ProductDTO
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Description = p.Description,
-                Price = p.Price,
-                StockQuantity = p.StockQuantity,
-                CategoryId = p.CategoryId
-            }).ToList();
-            return productDTOs;
+            
+            return products;
         }
         #endregion
     }
