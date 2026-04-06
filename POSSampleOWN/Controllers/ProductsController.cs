@@ -46,7 +46,7 @@ namespace POSSampleOWN.Controllers
             {
                 return StatusCode(500, ApiResponse<ProductDTO>.Fail($"An error occurred while retrieving the product: {ex.Message}"));
             }
-            
+
         }
 
         // GET: api/products/availableProducts
@@ -54,7 +54,7 @@ namespace POSSampleOWN.Controllers
         public async Task<IActionResult> GetAvailable()
         {
             var availableProducts = await _productService.GetAvailableAsync();
-         
+
             return Ok(availableProducts);
         }
 
@@ -109,10 +109,10 @@ namespace POSSampleOWN.Controllers
                     Message = "Invalid product data."
                 });
 
-            try 
+            try
             {
                 var updatedProduct = await _productService.UpdateAsync(id, updateRequest);
-                
+
                 if (updatedProduct is null)
                 {
                     return NotFound(ApiResponse<ProductDTO>.Fail("Product not found."));
@@ -147,5 +147,30 @@ namespace POSSampleOWN.Controllers
                 return NotFound(ApiResponse<object>.Fail(ex.Message));
             }
         }
+
+        // GET : api/products/search?term=searchTerm
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+            {
+                return BadRequest(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Search term cannot be empty.",
+                });
+            }
+            try
+            {
+                var results = await _productService.GetProductsByTermAsync(term);
+                return Ok(ApiResponse<List<ProductDTO>>.Success(results, "Successfully Retrieved"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<ProductDTO>.Fail($"An error occurred while retrieving: {ex.Message}"));
+            }
+
+        }
     }
+
 }
