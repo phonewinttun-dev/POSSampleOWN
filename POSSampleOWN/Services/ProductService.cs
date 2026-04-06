@@ -208,6 +208,29 @@ namespace POSSampleOWN.Services
             return true;
         }
         #endregion
+        public Task<ApiResponse<List<ProductDTO>>> GetAllProductsAsync()
+        {
+            throw new NotImplementedException();
+        }
+        #region Search Products By Term
+        public async Task<List<ProductDTO>> GetProductsByTermAsync(string term)
+        {
+            var products = await ActiveProductQuery
+                .Where(p => p.Name.Contains(term) || (p.Description != null && p.Description.Contains(term)))
+                .Select(p => new ProductDTO
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    StockQuantity = p.StockQuantity,
+                    CategoryId = p.CategoryId
+                })
+                .ToListAsync();
+            
+            return products;
+        }
+        #endregion
     }
 }
 

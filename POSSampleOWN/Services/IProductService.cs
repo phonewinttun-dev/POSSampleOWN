@@ -15,5 +15,7 @@ namespace POSSampleOWN.Services
         Task<List<ProductDTO>> BulkCreateAsync(List<CreateProductDTO> request);
         Task<ProductDTO> UpdateAsync(int id, UpdateProductDTO request);
         Task<bool> DeleteAsync(int id);
+
+        Task<List<ProductDTO>> GetProductsByTermAsync(string term);
     }
 }

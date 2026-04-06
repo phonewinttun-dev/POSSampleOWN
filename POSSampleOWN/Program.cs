@@ -20,6 +20,7 @@ try
     // Add Service Layer
     builder.Services.AddScoped<POSSampleOWN.Services.ICategoryService, POSSampleOWN.Services.CategoryService>();
     builder.Services.AddScoped<POSSampleOWN.Services.IProductService, POSSampleOWN.Services.ProductService>();
+    builder.Services.AddScoped<POSSampleOWN.Services.ISearchService, POSSampleOWN.Services.SearchService>();
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();

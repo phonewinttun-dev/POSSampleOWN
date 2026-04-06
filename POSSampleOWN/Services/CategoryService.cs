@@ -130,5 +130,23 @@ namespace POSSampleOWN.Services
             return true;
         }
         #endregion
+
+        #region get categories by term
+        public async  Task<List<CategoryDTO>> GetCategoriesByTermAsync(string term)
+        {
+            var categories = await _db.Categories
+                .AsNoTracking()
+                .Where(c => c.Name.Contains(term) || (c.Description != null && c.Description.Contains(term)))
+                .Select(c => new CategoryDTO
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Description = c.Description
+                })
+                .ToListAsync();
+
+            return categories;
+        }
+        #endregion
     }
 }

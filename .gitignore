@@ -367,5 +367,8 @@ logs/
 
 # Migrations
 Migrations/
+
+# Settings
+appsettings.json
 /module_checklist.md
 *.postman_collection
