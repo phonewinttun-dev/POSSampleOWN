@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using POSSampleOWN.DTOs;
 using POSSampleOWN.Responses;
-using POSSampleOWN.Services;
 using System.Threading.Tasks;
+using POSSampleOWN.domain.Features.ProductsCatalog;
 
 namespace POSSampleOWN.Controllers
 {
@@ -10,18 +10,18 @@ namespace POSSampleOWN.Controllers
     [Route("api/categories")]
     public class CategoriesController : ControllerBase
     {
-        private readonly ICategoryService _categoryService;
+        private readonly IProductCatalogService _service;
 
-        public CategoriesController(ICategoryService categoryService)
+        public CategoriesController(IProductCatalogService service)
         {
-            _categoryService = categoryService;
+            _service = service;
         }
 
         // GET: api/categories/
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var categories = await _categoryService.GetAllAsync();
+            var categories = await _service.GetAllCategoriesAsync();
 
             return Ok(categories);
         }
@@ -30,7 +30,7 @@ namespace POSSampleOWN.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var category = await _categoryService.GetByIdAsync(id);
+            var category = await _service.GetCategoryByIdAsync(id);
 
             if (category == null)
             {
@@ -52,7 +52,7 @@ namespace POSSampleOWN.Controllers
                 });
             try
             {
-                var createdCategory = await _categoryService.CreateAsync(request);
+                var createdCategory = await _service.CreateCategoryAsync(request);
 
                 if (createdCategory is null)
                 {
@@ -82,7 +82,7 @@ namespace POSSampleOWN.Controllers
                 });
             try
             {
-                var updatedCategory = await _categoryService.UpdateAsync(id, request);
+                var updatedCategory = await _service.UpdateCategoryAsync(id, request);
 
                 if (updatedCategory is null)
                 {
@@ -109,7 +109,7 @@ namespace POSSampleOWN.Controllers
                 });
             try
             {
-                var result = await _categoryService.DeleteAsync(id);
+                var result = await _service.DeleteCategoryAsync(id);
 
                 return Ok(ApiResponse<object>.Success(result, "Deleted successfully."));
             }
@@ -133,7 +133,7 @@ namespace POSSampleOWN.Controllers
             }
             try
             {
-                var results = await _categoryService.GetCategoriesByTermAsync(term);
+                var results = await _service.GetCategoriesByTermAsync(term);
                 return Ok(ApiResponse<List<CategoryDTO>>.Success(results, "Successfully Retrieved"));
             }
             catch (Exception ex)

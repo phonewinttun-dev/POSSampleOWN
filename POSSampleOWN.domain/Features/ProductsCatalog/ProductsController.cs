@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using POSSampleOWN.domain.Features.ProductsCatalog;
 using POSSampleOWN.DTOs;
 using POSSampleOWN.Models;
 using POSSampleOWN.Responses;
-using POSSampleOWN.Services;
 using System.Threading.Tasks;
 
 namespace POSSampleOWN.Controllers
@@ -11,18 +11,18 @@ namespace POSSampleOWN.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly IProductService _productService;
+        private readonly IProductCatalogService _service;
 
-        public ProductsController(IProductService productService)
+        public ProductsController(IProductCatalogService service)
         {
-            _productService = productService;
+            _service = service;
         }
 
         // GET: api/products/
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var products = await _productService.GetAllAsync();
+            var products = await _service.GetAllProductsAsync();
 
             return Ok(ApiResponse<List<ProductDTO>>.Success(products));
         }
@@ -33,7 +33,7 @@ namespace POSSampleOWN.Controllers
         {
             try
             {
-                var product = await _productService.GetByIdAsync(id);
+                var product = await _service.GetProductByIdAsync(id);
 
                 if (product is null)
                 {
@@ -53,7 +53,7 @@ namespace POSSampleOWN.Controllers
         [HttpGet("availableProducts")]
         public async Task<IActionResult> GetAvailable()
         {
-            var availableProducts = await _productService.GetAvailableAsync();
+            var availableProducts = await _service.GetAvailableProductsAsync();
 
             return Ok(availableProducts);
         }
@@ -71,7 +71,7 @@ namespace POSSampleOWN.Controllers
 
             try
             {
-                var createdProduct = await _productService.CreateAsync(createRequest);
+                var createdProduct = await _service.CreateProductAsync(createRequest);
 
                 if (createdProduct is null)
                 {
@@ -113,7 +113,7 @@ namespace POSSampleOWN.Controllers
 
             try
             {
-                var bulkCreatedProducts = await _productService.BulkCreateAsync(bulkRequest);
+                var bulkCreatedProducts = await _service.BulkCreateProductsAsync(bulkRequest);
 
                 if (bulkCreatedProducts is null)
                 {
@@ -154,7 +154,7 @@ namespace POSSampleOWN.Controllers
 
             try
             {
-                var updatedProduct = await _productService.UpdateAsync(id, updateRequest);
+                var updatedProduct = await _service.UpdateProductAsync(id, updateRequest);
 
                 if (updatedProduct is null)
                 {
@@ -181,7 +181,7 @@ namespace POSSampleOWN.Controllers
                 });
             try
             {
-                var result = await _productService.DeleteAsync(id);
+                var result = await _service.DeleteProductAsync(id);
 
                 return Ok(ApiResponse<object>.Success(result, "Deleted successfully."));
             }
@@ -205,7 +205,7 @@ namespace POSSampleOWN.Controllers
             }
             try
             {
-                var results = await _productService.GetProductsByTermAsync(term);
+                var results = await _service.GetProductsByTermAsync(term);
                 return Ok(ApiResponse<List<ProductDTO>>.Success(results, "Successfully Retrieved"));
             }
             catch (Exception ex)
@@ -214,6 +214,8 @@ namespace POSSampleOWN.Controllers
             }
 
         }
+
+
     }
 
 }
