@@ -1,15 +1,14 @@
 using Microsoft.EntityFrameworkCore;
-using Serilog;
 using POSSampleOWN.domain;
 using POSSampleOWN.domain.Features;
-
+using Scalar.AspNetCore;
+using Serilog;
 
 
 try
 {
     var builder = WebApplication.CreateBuilder(args);
     
-
     Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
     .WriteTo.Console()
@@ -29,6 +28,13 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
+    var app = builder.Build();
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapSwagger("/openapi/{documentName}.json");
+        app.MapScalarApiReference();
+    }
 
     // Add CORS Policy
     builder.Services.AddCors(options =>
@@ -41,14 +47,7 @@ try
         });
     });
 
-    var app = builder.Build();
-
-    // Configure the HTTP request pipeline.
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-    }
+    
 
     app.UseHttpsRedirection();
 
