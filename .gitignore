@@ -371,3 +371,4 @@ Migrations/
 # Settings
 /module_checklist.md
 *.postman_collection
+/migration.md
