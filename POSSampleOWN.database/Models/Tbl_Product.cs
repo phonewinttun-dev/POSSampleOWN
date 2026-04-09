@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace POSSampleOWN.Models
 {
-    public class Product
+    public class Tbl_Product
     {
         [Key]
         public int Id { get; set; }
@@ -30,10 +30,9 @@ namespace POSSampleOWN.Models
 
         public bool DeleteFlag { get; set; } = false;
 
-        [ForeignKey("Category")]
         public int CategoryId { get; set; }
 
-        public Category Category { get; set; } = null!;
+        public Tbl_Category Category { get; set; } = null!;
 
         //[ForeignKey("CreatedBy")]
         //public User User { get; set; } = null!;

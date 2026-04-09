@@ -34,13 +34,13 @@ apply database migration (only run this if you are initializing the database) :
 dotnet ef database update --project POSSampleOWN.database --startup-project POSSampleOWN
 ```
 
-run docker:
+to run docker:
 
 ```cmd
 docker compose up
 ```
 
-stop docker:
+to stop docker:
 
 ```cmd
 docker compose down

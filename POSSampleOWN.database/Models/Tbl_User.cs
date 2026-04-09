@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace POSSampleOWN.Models
 {
-    public class User
+    public class Tbl_User
     {
         [Key]
         public int Id { get; set; }
@@ -23,6 +23,6 @@ namespace POSSampleOWN.Models
 
         public bool DeleteFlag { get; set; } = false;
 
-        public ICollection<Product>? Products { get; set; }
+        public ICollection<Tbl_Product>? Products { get; set; }
     }
 }

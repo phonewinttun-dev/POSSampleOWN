@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using POSSampleOWN.Data;
 using POSSampleOWN.DTOs;
 using POSSampleOWN.Models;
@@ -19,7 +19,7 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
             _db = db;
         }
 
-        private IQueryable<Product> ActiveProductQuery => _db.Products
+        private IQueryable<Tbl_Product> ActiveProductQuery => _db.Products
             .AsNoTracking()
             .Where(p => !p.DeleteFlag);
 
@@ -95,7 +95,7 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
 
             if (!categoryExists) throw new Exception("Category not found");
 
-            var newProduct = new Product
+            var newProduct = new Tbl_Product
             {
                 Name = request.Name.Trim(),
                 Description = request.Description?.Trim(),
@@ -127,7 +127,7 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
         #region bulk insert product
         public async Task<List<ProductDTO>> BulkCreateProductsAsync(List<CreateProductDTO> request)
         {
-            var products = request.Select(p => new Product
+            var products = request.Select(p => new Tbl_Product
             {
                 Name = p.Name.Trim(),
                 Description = p.Description?.Trim(),
@@ -270,7 +270,7 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
         public async Task<CategoryDTO> CreateCategoryAsync(CreateCategoryDTO request)
         {
 
-            var newCategory = new Category
+            var newCategory = new Tbl_Category
             {
                 Name = request.Name.Trim(),
                 Description = request.Description!.Trim(),

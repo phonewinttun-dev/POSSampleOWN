@@ -2,7 +2,7 @@
 
 namespace POSSampleOWN.Models
 {
-    public class Category
+    public class Tbl_Category
     {
         [Key]
         public int Id { get; set; }
@@ -18,6 +18,6 @@ namespace POSSampleOWN.Models
 
         public bool DeleteFlag { get; set; } = false;
 
-        public ICollection<Product>? Products { get; set; }
+        public ICollection<Tbl_Product>? Products { get; set; }
     }
 }
