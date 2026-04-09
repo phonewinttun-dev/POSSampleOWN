@@ -15,12 +15,20 @@ public class SaleDTO
 
     public string VoucherCode { get; set; } = null!;
 
-    public ICollection<Tbl_SaleItem> SaleItems { get; set; } = new List<Tbl_SaleItem>();
+    public List<SaleItemDTO> SaleItems { get; set; } = new List<SaleItemDTO>();
+}
+public class SaleItemDTO
+{
+    public String ProductName { get; set; } = null!;
+
+    public int Quantity { get; set; }
+
+    public decimal Price { get; set; }
 }
 
 public class CreateSaleDTO
 {
-    List<CreateSaleItemDTO> Items { get; set; } = null!;
+    public List<CreateSaleItemDTO> Items { get; set; } = null!;
 }
 
 public class CreateSaleItemDTO
