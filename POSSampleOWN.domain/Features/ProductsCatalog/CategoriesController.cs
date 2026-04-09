@@ -21,23 +21,22 @@ namespace POSSampleOWN.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var categories = await _service.GetAllCategoriesAsync();
-
-            return Ok(categories);
+            var result = await _service.GetAllCategoriesAsync();
+            return Ok(result);
         }
 
         // GET: api/categories/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var category = await _service.GetCategoryByIdAsync(id);
+            var result = await _service.GetCategoryByIdAsync(id);
 
-            if (category == null)
+            if (!result.IsSuccess)
             {
-                return NotFound(ApiResponse<CategoryDTO>.Fail("Category not found."));
+                return NotFound(result);
             }
 
-            return Ok(ApiResponse<CategoryDTO>.Success(category));
+            return Ok(result);
         }
 
         // POST: api/categories/
@@ -45,29 +44,19 @@ namespace POSSampleOWN.Controllers
         public async Task<IActionResult> Create([FromBody] CreateCategoryDTO request)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new ApiResponse<object>
-                {
-                    IsSuccess = false,
-                    Message = "Invalid category data."
-                });
-            try
-            {
-                var createdCategory = await _service.CreateCategoryAsync(request);
+                return BadRequest(ApiResponse<object>.Fail("Invalid category data."));
 
-                if (createdCategory is null)
-                {
-                    return BadRequest(ApiResponse<object>.Fail("Failed to create category."));
-                }
+            var result = await _service.CreateCategoryAsync(request);
 
-                return CreatedAtAction(
-                    nameof(GetById),
-                    new { id = createdCategory.Id },
-                    ApiResponse<CategoryDTO>.Success(createdCategory, "Category created successfully."));
-            }
-            catch (Exception ex)
+            if (!result.IsSuccess)
             {
-                return StatusCode(500, ApiResponse<object>.Fail($"An error occurred while creating the category: {ex.Message}"));
+                return BadRequest(result);
             }
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = result.Data!.Id },
+                result);
         }
 
         // PATCH: api/categories/{id}
@@ -75,26 +64,16 @@ namespace POSSampleOWN.Controllers
         public async Task<IActionResult> Update(int id, [FromBody] UpdateCategoryDTO request)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new ApiResponse<object>
-                {
-                    IsSuccess = false,
-                    Message = "Invalid category data."
-                });
-            try
-            {
-                var updatedCategory = await _service.UpdateCategoryAsync(id, request);
+                return BadRequest(ApiResponse<object>.Fail("Invalid category data."));
 
-                if (updatedCategory is null)
-                {
-                    return NotFound(ApiResponse<object>.Fail("Category not found."));
-                }
+            var result = await _service.UpdateCategoryAsync(id, request);
 
-                return Ok(ApiResponse<CategoryDTO>.Success(updatedCategory, "Category updated successfully."));
-            }
-            catch (Exception ex)
+            if (!result.IsSuccess)
             {
-                return StatusCode(500, ApiResponse<object>.Fail($"An error occurred while updating the category: {ex.Message}"));
+                return result.Message.Contains("not found") ? NotFound(result) : BadRequest(result);
             }
+
+            return Ok(result);
         }
 
         // DELETE: api/categories/{id}
@@ -102,21 +81,16 @@ namespace POSSampleOWN.Controllers
         public async Task<IActionResult> DeleteCategory(int id)
         {      
             if (!ModelState.IsValid)
-                return BadRequest(new ApiResponse<object>
-                {
-                    IsSuccess = false,
-                    Message = "Invalid product ID."
-                });
-            try
-            {
-                var result = await _service.DeleteCategoryAsync(id);
+                return BadRequest(ApiResponse<object>.Fail("Invalid product ID."));
 
-                return Ok(ApiResponse<object>.Success(result, "Deleted successfully."));
-            }
-            catch (Exception ex)
+            var result = await _service.DeleteCategoryAsync(id);
+
+            if (!result.IsSuccess)
             {
-                return NotFound(ApiResponse<object>.Fail(ex.Message));
+                return result.Message.Contains("not found") ? NotFound(result) : BadRequest(result);
             }
+
+            return Ok(result);
         }
 
         // GET: api/categories/search?term=searchTerm
@@ -124,22 +98,16 @@ namespace POSSampleOWN.Controllers
         public async Task<IActionResult> Search([FromQuery] string term)
         {
             if (string.IsNullOrWhiteSpace(term))
+                return BadRequest(ApiResponse<object>.Fail("Search term cannot be empty."));
+
+            var result = await _service.GetCategoriesByTermAsync(term);
+
+            if (!result.IsSuccess)
             {
-                return BadRequest(new ApiResponse<object>
-                {
-                    IsSuccess = false,
-                    Message = "Search term cannot be empty."
-                });
+                return StatusCode(500, result);
             }
-            try
-            {
-                var results = await _service.GetCategoriesByTermAsync(term);
-                return Ok(ApiResponse<List<CategoryDTO>>.Success(results, "Successfully Retrieved"));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<CategoryDTO>.Fail($"An error occurred while retrieving: {ex.Message}"));
-            }
+
+            return Ok(result);
         }
     }
 }

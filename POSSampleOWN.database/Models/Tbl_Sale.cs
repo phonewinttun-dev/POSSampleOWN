@@ -10,7 +10,7 @@ namespace POSSampleOWN.database.Models
         public string VoucherCode { get; set; } = null!;
 
         public DateTime CreatedAt { get; set; }
-    
+
         public ICollection<Tbl_SaleItem> SaleItems { get; set; } = new List<Tbl_SaleItem>();
 
     }
