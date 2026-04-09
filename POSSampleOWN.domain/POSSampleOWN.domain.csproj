@@ -13,4 +13,8 @@
 	  <ProjectReference Include="..\POSSampleOWN.shared\POSSampleOWN.shared.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Features\Search\" />
+	</ItemGroup>
+
 </Project>

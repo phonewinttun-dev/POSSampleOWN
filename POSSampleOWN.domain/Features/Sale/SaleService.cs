@@ -1,21 +1,22 @@
-﻿using System;
+using Microsoft.AspNetCore.Http.Timeouts;
+using Microsoft.EntityFrameworkCore;
+using POSSampleOWN.Data;
+using POSSampleOWN.database.Models;
+using POSSampleOWN.domain.DTOs;
+using POSSampleOWN.Models;
+using POSSampleOWN.Responses;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.Timeouts;
-using Microsoft.EntityFrameworkCore;
-using POSSampleOWN.Data;
-using POSSampleOWN.database.Models;
-using POSSampleOWN.domain.DTOs;
-using POSSampleOWN.Responses;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace POSSampleOWN.domain.Features.Sale;
 
-public class SaleService
+public class SaleService : ISaleService
 {
     private readonly POSDbContext _db;
 
@@ -23,6 +24,9 @@ public class SaleService
     {
         _db = db;
     }
+
+    private IQueryable<Tbl_Product> ActiveProduct => _db.Products.Where(p => !p.DeleteFlag);
+
     #region Create Sale
     public async Task<ApiResponse<SaleDTO>> CreateSaleAsync(CreateSaleDTO reqSale)
     {
@@ -33,10 +37,23 @@ public class SaleService
                 return ApiResponse<SaleDTO>.Fail("Invalid sale data.");
 
             var productIds = reqSale.Items.Select(x => x.ProductId).Distinct().ToList();
-            var products = await _db.Products
-                .Where(p => productIds.Contains(p.Id))
-                .ToDictionaryAsync(p =>(long) p.Id);
-            
+            var products = await ActiveProduct
+                                   .Where(p => productIds.Contains(p.Id))
+                                   .ToDictionaryAsync(p => (long)p.Id);
+
+            // check product exists & sufficient quantity
+            foreach (var item in reqSale.Items)
+            {
+                if (!products.TryGetValue(item.ProductId, out var product))
+                    return ApiResponse<SaleDTO>.Fail($"Product {item.ProductId} not found.");
+
+                if (product.StockQuantity < item.Quantity)
+                    return ApiResponse<SaleDTO>.Fail($"Insufficient stock for {product.Name}.");
+
+                // reduce stock quantity
+                product.StockQuantity -= item.Quantity;
+            }
+
             decimal totalPrice = TotalPrice(reqSale);
             var saveModel = new Tbl_Sale
             {
@@ -79,6 +96,7 @@ public class SaleService
         }
     }
     #endregion
+
     #region Get All Sales
     public ApiResponse<List<SaleDTO>> GetAllSales()
     {
@@ -114,7 +132,7 @@ public class SaleService
     }
     #endregion
 
-    #region
+    #region Get Sale By Id
     public ApiResponse<SaleDTO> GetSaleById(long id)
     {
         var sale = _db.Sales.Include(s => s.SaleItems).FirstOrDefault(s => s.Id == id);
@@ -139,7 +157,8 @@ public class SaleService
         return ApiResponse<SaleDTO>.Success(resModel);
     }
     #endregion
-    #region Validation
+
+    #region Sale Validation
     public bool ValidateSale(CreateSaleDTO sale)
     {
         if (sale == null)
@@ -153,6 +172,7 @@ public class SaleService
     }
     #endregion
 
+    #region total price
     public decimal TotalPrice(CreateSaleDTO reqSale)
     {
         decimal totalPrice = 0;
@@ -163,7 +183,9 @@ public class SaleService
         }
         return totalPrice;
     }
+    #endregion
 
+    #region sub price
     public async Task<decimal> SubPrice(CreateSaleItemDTO reqSaleItem)
     {
         var item = await _db.Products.FirstOrDefaultAsync( 
@@ -172,7 +194,7 @@ public class SaleService
         return price * reqSaleItem.Quantity;
 
     }
-
+    #endregion
 
 }
 

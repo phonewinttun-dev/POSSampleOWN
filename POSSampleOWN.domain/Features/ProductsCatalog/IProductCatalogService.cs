@@ -1,24 +1,24 @@
-﻿using POSSampleOWN.DTOs;
+using POSSampleOWN.DTOs;
 using POSSampleOWN.Responses;
 
 namespace POSSampleOWN.domain.Features.ProductsCatalog
 {
     public interface IProductCatalogService
     {
-        Task<List<ProductDTO>> GetAllProductsAsync();
-        Task<ProductDTO> GetProductByIdAsync(int id);
-        Task<List<ProductDTO>> GetAvailableProductsAsync();
-        Task<ProductDTO> CreateProductAsync(CreateProductDTO request);
+        Task<ApiResponse<List<ProductDTO>>> GetAllProductsAsync();
+        Task<ApiResponse<ProductDTO>> GetProductByIdAsync(int id);
+        Task<ApiResponse<List<ProductDTO>>> GetAvailableProductsAsync();
+        Task<ApiResponse<ProductDTO>> CreateProductAsync(CreateProductDTO request);
 
-        Task<List<ProductDTO>> BulkCreateProductsAsync(List<CreateProductDTO> request);
-        Task<ProductDTO> UpdateProductAsync(int id, UpdateProductDTO request);
-        Task<bool> DeleteProductAsync(int id);
-        Task<List<ProductDTO>> GetProductsByTermAsync(string term);
-        Task<List<CategoryDTO>> GetAllCategoriesAsync();
-        Task<CategoryDTO> GetCategoryByIdAsync(int id);
-        Task<CategoryDTO> CreateCategoryAsync(CreateCategoryDTO request);
-        Task<CategoryDTO> UpdateCategoryAsync(int id, UpdateCategoryDTO request);
-        Task<List<CategoryDTO>> GetCategoriesByTermAsync(string term);
-        Task<bool> DeleteCategoryAsync(int id);
+        Task<ApiResponse<List<ProductDTO>>> BulkCreateProductsAsync(List<CreateProductDTO> request);
+        Task<ApiResponse<ProductDTO>> UpdateProductAsync(int id, UpdateProductDTO request);
+        Task<ApiResponse<bool>> DeleteProductAsync(int id);
+        Task<ApiResponse<List<ProductDTO>>> GetProductsByTermAsync(string term);
+        Task<ApiResponse<List<CategoryDTO>>> GetAllCategoriesAsync();
+        Task<ApiResponse<CategoryDTO>> GetCategoryByIdAsync(int id);
+        Task<ApiResponse<CategoryDTO>> CreateCategoryAsync(CreateCategoryDTO request);
+        Task<ApiResponse<CategoryDTO>> UpdateCategoryAsync(int id, UpdateCategoryDTO request);
+        Task<ApiResponse<List<CategoryDTO>>> GetCategoriesByTermAsync(string term);
+        Task<ApiResponse<bool>> DeleteCategoryAsync(int id);
     }
 }

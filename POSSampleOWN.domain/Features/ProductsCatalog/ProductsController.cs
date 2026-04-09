@@ -22,40 +22,28 @@ namespace POSSampleOWN.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var products = await _service.GetAllProductsAsync();
-
-            return Ok(ApiResponse<List<ProductDTO>>.Success(products));
+            var result = await _service.GetAllProductsAsync();
+            return Ok(result);
         }
 
         // GET: api/products/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            try
+            var result = await _service.GetProductByIdAsync(id);
+            if (!result.IsSuccess)
             {
-                var product = await _service.GetProductByIdAsync(id);
-
-                if (product is null)
-                {
-                    return NotFound(ApiResponse<ProductDTO>.Fail("Product not found."));
-                }
-
-                return Ok(ApiResponse<ProductDTO>.Success(product));
+                return NotFound(result);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<ProductDTO>.Fail($"An error occurred while retrieving the product: {ex.Message}"));
-            }
-
+            return Ok(result);
         }
 
         // GET: api/products/availableProducts
         [HttpGet("availableProducts")]
         public async Task<IActionResult> GetAvailable()
         {
-            var availableProducts = await _service.GetAvailableProductsAsync();
-
-            return Ok(availableProducts);
+            var result = await _service.GetAvailableProductsAsync();
+            return Ok(result);
         }
 
         // POST: api/products/
@@ -63,39 +51,19 @@ namespace POSSampleOWN.Controllers
         public async Task<IActionResult> Create([FromBody] CreateProductDTO createRequest)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new ApiResponse<object>
-                {
-                    IsSuccess = false,
-                    Message = "Invalid product data."
-                });
+                return BadRequest(ApiResponse<object>.Fail("Invalid product data."));
 
-            try
+            var result = await _service.CreateProductAsync(createRequest);
+
+            if (!result.IsSuccess)
             {
-                var createdProduct = await _service.CreateProductAsync(createRequest);
-
-                if (createdProduct is null)
-                {
-                    return BadRequest(new ApiResponse<object>
-                    {
-                        IsSuccess = false,
-                        Message = "Failed to create product."
-                    });
-                }
-
-                return CreatedAtAction(
-                    nameof(GetById),
-                    new { id = createdProduct.Id },
-                    ApiResponse<ProductDTO>.Success(createdProduct, "Product created successfully."));
-
+                return BadRequest(result);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ApiResponse<object>
-                {
-                    IsSuccess = false,
-                    Message = $"An error occurred while creating the product: {ex.Message}"
-                });
-            }
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = result.Data!.Id },
+                result);
         }
 
         // POST: api/products/bulk
@@ -103,42 +71,16 @@ namespace POSSampleOWN.Controllers
         public async Task<IActionResult> BulkCreate([FromBody] List<CreateProductDTO> bulkRequest)
         {
             if (!ModelState.IsValid)
+                return BadRequest(ApiResponse<object>.Fail("Invalid data"));
+
+            var result = await _service.BulkCreateProductsAsync(bulkRequest);
+
+            if (!result.IsSuccess)
             {
-                return BadRequest(new ApiResponse<object>
-                {
-                    IsSuccess = false,
-                    Message = "Invalid data"
-                });
+                return BadRequest(result);
             }
 
-            try
-            {
-                var bulkCreatedProducts = await _service.BulkCreateProductsAsync(bulkRequest);
-
-                if (bulkCreatedProducts is null)
-                {
-                    return BadRequest(new ApiResponse<object>
-                    {
-                        IsSuccess = false,
-                        Message = "Failed to create products."
-                    });
-                }
-
-                return Ok(new ApiResponse<List<ProductDTO>>
-                {
-                    IsSuccess = true,
-                    Message = $"{bulkCreatedProducts.Count} books created successfully.",
-                    Data = bulkCreatedProducts
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ApiResponse<object>
-                {
-                    IsSuccess = false,
-                    Message = $"An error occurred while creating the product: {ex.Message}"
-                });
-            }
+            return Ok(result);
         }
 
         // PATCH: api/products/{id}
@@ -146,27 +88,16 @@ namespace POSSampleOWN.Controllers
         public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDTO updateRequest)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new ApiResponse<object>
-                {
-                    IsSuccess = false,
-                    Message = "Invalid product data."
-                });
+                return BadRequest(ApiResponse<object>.Fail("Invalid product data."));
 
-            try
+            var result = await _service.UpdateProductAsync(id, updateRequest);
+
+            if (!result.IsSuccess)
             {
-                var updatedProduct = await _service.UpdateProductAsync(id, updateRequest);
-
-                if (updatedProduct is null)
-                {
-                    return NotFound(ApiResponse<ProductDTO>.Fail("Product not found."));
-                }
-
-                return Ok(ApiResponse<ProductDTO>.Success(updatedProduct, "Updated successfully."));
+                return result.Message.Contains("not found") ? NotFound(result) : BadRequest(result);
             }
-            catch (Exception ex)
-            {
-                return NotFound(ApiResponse<object>.Fail(ex.Message));
-            }
+
+            return Ok(result);
         }
 
         // DELETE: api/products/{id}
@@ -174,21 +105,16 @@ namespace POSSampleOWN.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new ApiResponse<object>
-                {
-                    IsSuccess = false,
-                    Message = "Invalid product ID."
-                });
-            try
-            {
-                var result = await _service.DeleteProductAsync(id);
+                return BadRequest(ApiResponse<object>.Fail("Invalid product ID."));
 
-                return Ok(ApiResponse<object>.Success(result, "Deleted successfully."));
-            }
-            catch (Exception ex)
+            var result = await _service.DeleteProductAsync(id);
+
+            if (!result.IsSuccess)
             {
-                return NotFound(ApiResponse<object>.Fail(ex.Message));
+                return result.Message.Contains("not found") ? NotFound(result) : BadRequest(result);
             }
+
+            return Ok(result);
         }
 
         // GET : api/products/search?term=searchTerm
@@ -196,23 +122,16 @@ namespace POSSampleOWN.Controllers
         public async Task<IActionResult> Search([FromQuery] string term)
         {
             if (string.IsNullOrWhiteSpace(term))
+                return BadRequest(ApiResponse<object>.Fail("Search term cannot be empty."));
+
+            var result = await _service.GetProductsByTermAsync(term);
+
+            if (!result.IsSuccess)
             {
-                return BadRequest(new ApiResponse<object>
-                {
-                    IsSuccess = false,
-                    Message = "Search term cannot be empty.",
-                });
-            }
-            try
-            {
-                var results = await _service.GetProductsByTermAsync(term);
-                return Ok(ApiResponse<List<ProductDTO>>.Success(results, "Successfully Retrieved"));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<ProductDTO>.Fail($"An error occurred while retrieving: {ex.Message}"));
+                return StatusCode(500, result);
             }
 
+            return Ok(result);
         }
 
 
