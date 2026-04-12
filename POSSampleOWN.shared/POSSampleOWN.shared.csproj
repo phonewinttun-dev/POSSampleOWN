@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\POSSampleOWN.database\POSSampleOWN.database.csproj" />
+  </ItemGroup>
+
 </Project>

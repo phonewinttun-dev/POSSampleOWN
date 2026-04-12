@@ -7,7 +7,7 @@ Run this in POSSampleOWN\POSSampleOWN.csproj:
 Migration script:
 
 ```cmd
-dotnet ef add migration InitialCreate
+dotnet ef migrations add InitialCreate   
 ```
 
 ```cmd

@@ -3,7 +3,10 @@ using POSSampleOWN.domain;
 using POSSampleOWN.domain.Features;
 using Scalar.AspNetCore;
 using Serilog;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using POSSampleOWN.domain.Middlewares;
 
 try
 {
@@ -28,6 +31,31 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
+    // Add JWT Authentication
+    var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+    var secretKey = jwtSettings["SecretKey"] ?? "default_secret_key_at_least_32_chars_long";
+
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+
     
 
     // Add CORS Policy
@@ -51,6 +79,8 @@ try
 
     app.UseHttpsRedirection();
 
+    app.UseAuthentication();
+    app.UseMiddleware<Middleware>();
     app.UseAuthorization();
 
     app.MapControllers();
