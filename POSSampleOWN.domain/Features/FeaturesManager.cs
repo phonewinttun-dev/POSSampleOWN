@@ -12,6 +12,7 @@ using POSSampleOWN.domain.Features.ProductsCatalog;
 using POSSampleOWN.domain.Features.Search;
 using POSSampleOWN.domain.Features.Inventory;
 using POSSampleOWN.domain.Features.Sale;
+using POSSampleOWN.domain.Features.Dashboard;
 using POSSampleOWN.domain.Features.Auth;
 
 namespace POSSampleOWN.domain.Features
@@ -29,6 +30,7 @@ namespace POSSampleOWN.domain.Features
             builder.Services.AddScoped<ISearchService, SearchService>();
             builder.Services.AddScoped<IInventoryService, InventoryService>();
             builder.Services.AddScoped<ISaleService, SaleService>();
+            builder.Services.AddScoped<IDashboardService, DashboardService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IUserRegisterService, UserRegisterService>();
