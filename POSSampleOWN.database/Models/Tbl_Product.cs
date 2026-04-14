@@ -21,6 +21,8 @@ public class Tbl_Product
     
     [Required]
     public int StockQuantity { get; set; }
+
+    public bool IsActive { get; set; } = true;
     
     public int CreatedBy { get; set; }
     

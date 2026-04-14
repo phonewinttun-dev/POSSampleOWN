@@ -29,6 +29,8 @@ public class Tbl_User
     public UserRole Role { get; set; }
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    
+    public DateTime? UpdatedAt { get; set; }
 
     public bool DeleteFlag { get; set; } = false;
 

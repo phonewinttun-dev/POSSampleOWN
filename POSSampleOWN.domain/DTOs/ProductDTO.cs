@@ -11,6 +11,7 @@ namespace POSSampleOWN.DTOs
         public int StockQuantity { get; set; }
         public int CategoryId { get; set; }
         public bool DeleteFlag { get; set; }
+        public bool IsActive { get; set; }
     }
 
     public class CreateProductDTO

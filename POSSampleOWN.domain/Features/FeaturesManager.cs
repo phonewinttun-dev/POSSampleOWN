@@ -33,7 +33,7 @@ namespace POSSampleOWN.domain.Features
             builder.Services.AddScoped<IDashboardService, DashboardService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<IUserRegisterService, UserRegisterService>();
+            builder.Services.AddScoped<IUserService, UserService>();
         }
     }
 }

@@ -3,6 +3,7 @@ using POSSampleOWN.database.Data;
 using POSSampleOWN.DTOs;
 using POSSampleOWN.database.Models;
 using POSSampleOWN.Responses;
+using Serilog.Core;
 
 namespace POSSampleOWN.domain.Features.Inventory
 {
@@ -50,18 +51,25 @@ namespace POSSampleOWN.domain.Features.Inventory
 
                 if (product is null) return ApiResponse<bool>.Fail("Product not found");
 
+                if (quantity <= 0) return ApiResponse<bool>.Fail("Quantity must be greater than zero.");
+
                 if (product.StockQuantity < quantity)
                     return ApiResponse<bool>.Fail("Insufficient stock quantity available.");
 
                 product.StockQuantity -= quantity;
+
+                if (product.StockQuantity == 0) product.IsActive = false;
+
                 product.UpdatedAt = DateTime.UtcNow;
 
                 await _db.SaveChangesAsync();
                 return ApiResponse<bool>.Success(true, "Stock decreased successfully.");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return ApiResponse<bool>.Fail(ex.Message);
+                //Console.WriteLine(ex.Message);
+                
+                return ApiResponse<bool>.Fail("Unexpected error occured.");
             }
         }
         #endregion
@@ -82,7 +90,8 @@ namespace POSSampleOWN.domain.Features.Inventory
                         Price = p.Price,
                         StockQuantity = p.StockQuantity,
                         CategoryId = p.CategoryId,
-                        DeleteFlag = p.DeleteFlag
+                        DeleteFlag = p.DeleteFlag,
+                        IsActive = p.IsActive
                     })
                     .ToListAsync();
 

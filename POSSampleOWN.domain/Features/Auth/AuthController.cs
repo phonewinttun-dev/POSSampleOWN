@@ -12,9 +12,9 @@ namespace POSSampleOWN.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
-    private readonly IUserRegisterService _registerService;
+    private readonly IUserService _registerService;
 
-    public AuthController(IAuthService authService, IUserRegisterService registerService)
+    public AuthController(IAuthService authService, IUserService registerService)
     {
         _authService = authService;
         _registerService = registerService;
@@ -65,5 +65,53 @@ public class AuthController : ControllerBase
         result.RefreshToken = string.Empty;
 
         return Ok(ApiResponse<TokenResponse>.Success(result, "Login successful."));
+    }
+
+    [Authorize]
+    [HttpPut("users/{id}")]
+    public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ApiResponse<UserResponse>.Fail("Invalid update data."));
+
+        var result = await _registerService.UpdateAsync(id, request);
+
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result);
+        }
+
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPost("users/{id}/change-password")]
+    public async Task<IActionResult> ChangePassword(int id, [FromBody] ChangePasswordRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ApiResponse<UserResponse>.Fail("Invalid password change data."));
+
+        var result = await _registerService.ChangePasswordAsync(id, request);
+
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result);
+        }
+
+        return Ok(result);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("users/{id}")]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var result = await _registerService.DeleteAsync(id);
+
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result);
+        }
+
+        return Ok(result);
     }
 }

@@ -22,7 +22,7 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
 
         private IQueryable<Tbl_Product> ActiveProductQuery => _db.Products
             .AsNoTracking()
-            .Where(p => !p.DeleteFlag);
+            .Where(p => !p.DeleteFlag && p.IsActive);
 
         #region get all products
         public async Task<ApiResponse<List<ProductDTO>>> GetAllProductsAsync()
@@ -39,7 +39,8 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
                         Price = p.Price,
                         StockQuantity = p.StockQuantity,
                         CategoryId = p.CategoryId,
-                        DeleteFlag = p.DeleteFlag
+                        DeleteFlag = p.DeleteFlag,
+                        IsActive = p.IsActive,
                     })
                     .ToListAsync();
 
@@ -141,7 +142,8 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
                     Price = newProduct.Price,
                     StockQuantity = newProduct.StockQuantity,
                     CategoryId = newProduct.CategoryId,
-                    DeleteFlag = newProduct.DeleteFlag
+                    DeleteFlag = newProduct.DeleteFlag,
+                    IsActive = newProduct.IsActive
                 };
 
                 return ApiResponse<ProductDTO>.Success(data, "Product created successfully.");
@@ -179,7 +181,8 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
                     Price = p.Price,
                     StockQuantity = p.StockQuantity,
                     CategoryId = p.CategoryId,
-                    DeleteFlag = p.DeleteFlag
+                    DeleteFlag = p.DeleteFlag,
+                    IsActive = p.IsActive
                 }).ToList();
 
                 return ApiResponse<List<ProductDTO>>.Success(data, $"{data.Count} products created successfully.");
@@ -249,6 +252,7 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
                 if (product is null) return ApiResponse<bool>.Fail("Product not found");
 
                 product.DeleteFlag = true;
+                product.IsActive = false;
                 product.UpdatedAt = DateTime.UtcNow;
 
                 await _db.SaveChangesAsync();

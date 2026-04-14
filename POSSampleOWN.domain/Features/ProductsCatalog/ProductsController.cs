@@ -31,10 +31,7 @@ namespace POSSampleOWN.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _service.GetProductByIdAsync(id);
-            if (!result.IsSuccess)
-            {
-                return NotFound(result);
-            }
+            if (!result.IsSuccess) return NotFound(result);
             return Ok(result);
         }
 
@@ -51,15 +48,13 @@ namespace POSSampleOWN.Controllers
         public async Task<IActionResult> Create([FromBody] CreateProductDTO createRequest)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ApiResponse<object>.Fail("Invalid product data."));
+                return BadRequest(ModelState);
 
             var result = await _service.CreateProductAsync(createRequest);
 
             if (!result.IsSuccess)
-            {
                 return BadRequest(result);
-            }
-
+            
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = result.Data!.Id },
@@ -71,14 +66,12 @@ namespace POSSampleOWN.Controllers
         public async Task<IActionResult> BulkCreate([FromBody] List<CreateProductDTO> bulkRequest)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ApiResponse<object>.Fail("Invalid data"));
+                return BadRequest(ModelState);
 
             var result = await _service.BulkCreateProductsAsync(bulkRequest);
 
             if (!result.IsSuccess)
-            {
                 return BadRequest(result);
-            }
 
             return Ok(result);
         }
@@ -88,15 +81,13 @@ namespace POSSampleOWN.Controllers
         public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDTO updateRequest)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ApiResponse<object>.Fail("Invalid product data."));
+                return BadRequest(ModelState);
 
             var result = await _service.UpdateProductAsync(id, updateRequest);
 
             if (!result.IsSuccess)
-            {
                 return result.Message.Contains("not found") ? NotFound(result) : BadRequest(result);
-            }
-
+            
             return Ok(result);
         }
 
@@ -110,9 +101,7 @@ namespace POSSampleOWN.Controllers
             var result = await _service.DeleteProductAsync(id);
 
             if (!result.IsSuccess)
-            {
                 return result.Message.Contains("not found") ? NotFound(result) : BadRequest(result);
-            }
 
             return Ok(result);
         }
@@ -122,14 +111,12 @@ namespace POSSampleOWN.Controllers
         public async Task<IActionResult> Search([FromQuery] string term)
         {
             if (string.IsNullOrWhiteSpace(term))
-                return BadRequest(ApiResponse<object>.Fail("Search term cannot be empty."));
+                return BadRequest(term);
 
             var result = await _service.GetProductsByTermAsync(term);
 
             if (!result.IsSuccess)
-            {
                 return StatusCode(500, result);
-            }
 
             return Ok(result);
         }

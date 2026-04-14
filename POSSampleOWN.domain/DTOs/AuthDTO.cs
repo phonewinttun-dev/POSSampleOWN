@@ -45,10 +45,28 @@ namespace POSSampleOWN.DTOs
         public Tbl_User.UserRole Role { get; set; } = Tbl_User.UserRole.Staff;
     }
 
-    public class UserRegisterResponse
+    public class UserResponse
     {
         public bool IsSuccess { get; set; }
         public string Message { get; set; } = string.Empty;
         public int? UserId { get; set; }
+    }
+
+    public class UserUpdateRequest
+    {
+        public string? Name { get; set; }
+        public string? Email { get; set; }
+        public string? Password { get; set; }
+        public Tbl_User.UserRole? Role { get; set; }
+    }
+
+    public class ChangePasswordRequest
+    {
+        [Required]
+        public string OldPassword { get; set; } = string.Empty;
+
+        [Required]
+        [MinLength(6)]
+        public string NewPassword { get; set; } = string.Empty;
     }
 }

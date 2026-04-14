@@ -31,10 +31,7 @@ namespace POSSampleOWN.Controllers
         {
             var result = await _service.GetCategoryByIdAsync(id);
 
-            if (!result.IsSuccess)
-            {
-                return NotFound(result);
-            }
+            if (!result.IsSuccess) return NotFound(result);
 
             return Ok(result);
         }
@@ -44,14 +41,11 @@ namespace POSSampleOWN.Controllers
         public async Task<IActionResult> Create([FromBody] CreateCategoryDTO request)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ApiResponse<object>.Fail("Invalid category data."));
+                return BadRequest(ModelState);
 
             var result = await _service.CreateCategoryAsync(request);
 
-            if (!result.IsSuccess)
-            {
-                return BadRequest(result);
-            }
+            if (!result.IsSuccess) return BadRequest(result);
 
             return CreatedAtAction(
                 nameof(GetById),
@@ -64,15 +58,13 @@ namespace POSSampleOWN.Controllers
         public async Task<IActionResult> Update(int id, [FromBody] UpdateCategoryDTO request)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ApiResponse<object>.Fail("Invalid category data."));
+                return BadRequest(ModelState);
 
             var result = await _service.UpdateCategoryAsync(id, request);
 
             if (!result.IsSuccess)
-            {
                 return result.Message.Contains("not found") ? NotFound(result) : BadRequest(result);
-            }
-
+            
             return Ok(result);
         }
 
@@ -81,15 +73,13 @@ namespace POSSampleOWN.Controllers
         public async Task<IActionResult> DeleteCategory(int id)
         {      
             if (!ModelState.IsValid)
-                return BadRequest(ApiResponse<object>.Fail("Invalid product ID."));
+                return BadRequest(ModelState);
 
             var result = await _service.DeleteCategoryAsync(id);
 
             if (!result.IsSuccess)
-            {
                 return result.Message.Contains("not found") ? NotFound(result) : BadRequest(result);
-            }
-
+            
             return Ok(result);
         }
 
