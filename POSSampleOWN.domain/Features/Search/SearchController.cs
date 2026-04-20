@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using POSSampleOWN.DTOs;
 using POSSampleOWN.Responses;
 using System;
@@ -11,6 +12,7 @@ namespace POSSampleOWN.domain.Features.Search
 {
     [ApiController]
     [Route("api/search")]
+    [Authorize(Roles = "Admin,Staff")]
     public class SearchController : ControllerBase
     {
         private readonly ISearchService _service;

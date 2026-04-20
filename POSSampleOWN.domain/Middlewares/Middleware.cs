@@ -26,7 +26,7 @@ public class Middleware
     {
         var path = context.Request.Path.Value?.ToLower();
 
-        if (path != null && (path.Contains("/api/auth/login") || path.Contains("/api/auth/register")))
+        if (path != null && (path.Contains("/api/auth/login")))
         {
             await _next(context);
             return;

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using POSSampleOWN.domain.DTOs;
 using POSSampleOWN.domain.Features.Inventory;
 using POSSampleOWN.Responses;
@@ -8,6 +9,7 @@ namespace POSSampleOWN.Controllers
 {
     [Route("api/inventory")]
     [ApiController]
+    [Authorize(Roles = "Admin,Staff")]
     public class InventoryController : ControllerBase
     {
         private readonly IInventoryService _service;

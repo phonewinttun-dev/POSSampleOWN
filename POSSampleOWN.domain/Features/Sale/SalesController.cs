@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using POSSampleOWN.domain.Features.Sale;
 using POSSampleOWN.domain.DTOs;
 using POSSampleOWN.Responses;
@@ -9,6 +10,7 @@ namespace POSSampleOWN.Controllers
 {
     [Route("api/sales")]
     [ApiController]
+    [Authorize(Roles = "Admin,Staff")]
     public class SalesController : ControllerBase
     {
         private readonly ISaleService _service;

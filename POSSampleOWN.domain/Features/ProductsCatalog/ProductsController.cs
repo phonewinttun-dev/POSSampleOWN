@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using POSSampleOWN.domain.Features.ProductsCatalog;
 using POSSampleOWN.DTOs;
 using POSSampleOWN.database.Models;
@@ -9,6 +10,7 @@ namespace POSSampleOWN.Controllers
 {
     [Route("api/products")]
     [ApiController]
+    [Authorize(Roles = "Admin,Staff")]
     public class ProductsController : ControllerBase
     {
         private readonly IProductCatalogService _service;

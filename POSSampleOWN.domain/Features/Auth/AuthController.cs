@@ -20,7 +20,7 @@ public class AuthController : ControllerBase
         _registerService = registerService;
     }
 
-    [AllowAnonymous]
+    [Authorize(Roles = "Admin,Staff")]
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] UserRegisterRequest request)
     {

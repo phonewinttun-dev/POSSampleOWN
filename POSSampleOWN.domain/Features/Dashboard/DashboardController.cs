@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using POSSampleOWN.domain.Features.Dashboard;
 using POSSampleOWN.Responses;
 using System;
@@ -7,6 +8,7 @@ namespace POSSampleOWN.Controllers;
 
 [Route("api/dashboard")]
 [ApiController]
+[Authorize(Roles = "Admin")]
 public class DashboardController : ControllerBase
 {
     private readonly IDashboardService _service;

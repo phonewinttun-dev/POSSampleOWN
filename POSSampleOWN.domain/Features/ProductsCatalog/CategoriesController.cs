@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using POSSampleOWN.DTOs;
 using POSSampleOWN.Responses;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace POSSampleOWN.Controllers
 {
     [ApiController]
     [Route("api/categories")]
+    [Authorize(Roles = "Admin,Staff")]
     public class CategoriesController : ControllerBase
     {
         private readonly IProductCatalogService _service;
