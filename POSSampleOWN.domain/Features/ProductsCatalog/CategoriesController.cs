@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using POSSampleOWN.DTOs;
 using POSSampleOWN.Responses;
 using System.Threading.Tasks;
+using System.Security.Claims;
 using POSSampleOWN.domain.Features.ProductsCatalog;
 
 namespace POSSampleOWN.Controllers
@@ -17,6 +18,12 @@ namespace POSSampleOWN.Controllers
         public CategoriesController(IProductCatalogService service)
         {
             _service = service;
+        }
+
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            return userIdClaim != null ? int.Parse(userIdClaim.Value) : 0;
         }
 
         // GET: api/categories/
@@ -45,7 +52,7 @@ namespace POSSampleOWN.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _service.CreateCategoryAsync(request);
+            var result = await _service.CreateCategoryAsync(request, GetCurrentUserId());
 
             if (!result.IsSuccess) return BadRequest(result);
 
@@ -62,7 +69,7 @@ namespace POSSampleOWN.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _service.UpdateCategoryAsync(id, request);
+            var result = await _service.UpdateCategoryAsync(id, request, GetCurrentUserId());
 
             if (!result.IsSuccess)
                 return result.Message.Contains("not found") ? NotFound(result) : BadRequest(result);
@@ -77,7 +84,7 @@ namespace POSSampleOWN.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _service.DeleteCategoryAsync(id);
+            var result = await _service.DeleteCategoryAsync(id, GetCurrentUserId());
 
             if (!result.IsSuccess)
                 return result.Message.Contains("not found") ? NotFound(result) : BadRequest(result);

@@ -5,6 +5,8 @@ using POSSampleOWN.DTOs;
 using POSSampleOWN.database.Models;
 using POSSampleOWN.Responses;
 using System.Threading.Tasks;
+using System.Security.Claims;
+
 
 namespace POSSampleOWN.Controllers
 {
@@ -18,6 +20,12 @@ namespace POSSampleOWN.Controllers
         public ProductsController(IProductCatalogService service)
         {
             _service = service;
+        }
+
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            return userIdClaim != null ? int.Parse(userIdClaim.Value) : 0;
         }
 
         // GET: api/products/
@@ -52,7 +60,7 @@ namespace POSSampleOWN.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _service.CreateProductAsync(createRequest);
+            var result = await _service.CreateProductAsync(createRequest, GetCurrentUserId());
 
             if (!result.IsSuccess)
                 return BadRequest(result);
@@ -70,7 +78,7 @@ namespace POSSampleOWN.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _service.BulkCreateProductsAsync(bulkRequest);
+            var result = await _service.BulkCreateProductsAsync(bulkRequest, GetCurrentUserId());
 
             if (!result.IsSuccess)
                 return BadRequest(result);
@@ -85,7 +93,7 @@ namespace POSSampleOWN.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _service.UpdateProductAsync(id, updateRequest);
+            var result = await _service.UpdateProductAsync(id, updateRequest, GetCurrentUserId());
 
             if (!result.IsSuccess)
                 return result.Message.Contains("not found") ? NotFound(result) : BadRequest(result);
@@ -100,7 +108,7 @@ namespace POSSampleOWN.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ApiResponse<object>.Fail("Invalid product ID."));
 
-            var result = await _service.DeleteProductAsync(id);
+            var result = await _service.DeleteProductAsync(id, GetCurrentUserId());
 
             if (!result.IsSuccess)
                 return result.Message.Contains("not found") ? NotFound(result) : BadRequest(result);

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace POSSampleOWN.database.Models;
 
@@ -18,9 +19,17 @@ public class Tbl_Category
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    public DateTime? UpdatedAt { get; set; }
+
+    public int? UpdatedBy { get; set; }
+
     public bool DeleteFlag { get; set; } = false;
 
     public ICollection<Tbl_Product>? Products { get; set; }
+    
+    [ForeignKey("CreatedBy")]
+    public Tbl_User CreatedUser { get; set; } = null!;
 
-    public Tbl_User User { get; set; } = null!;
+    [ForeignKey("UpdatedBy")]
+    public Tbl_User? UpdatedUser { get; set; }
 }

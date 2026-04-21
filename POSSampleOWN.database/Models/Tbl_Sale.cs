@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace POSSampleOWN.database.Models;
 
 public class Tbl_Sale
@@ -8,8 +10,16 @@ public class Tbl_Sale
 
     public string VoucherCode { get; set; } = string.Empty;
 
-    public DateTime CreatedAt { get; set; }
+    public int CreatedBy { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? UpdatedAt { get; set; }
+    public int? UpdatedBy { get; set; }
 
     public ICollection<Tbl_SaleItem> SaleItems { get; set; } = new List<Tbl_SaleItem>();
 
+    [ForeignKey("CreatedBy")]
+    public Tbl_User CreatedUser { get; set; } = null!;
+
+    [ForeignKey("UpdatedBy")]
+    public Tbl_User? UpdatedUser { get; set; }
 }

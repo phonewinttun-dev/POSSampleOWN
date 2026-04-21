@@ -111,7 +111,7 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
         #endregion
 
         #region create product
-        public async Task<ApiResponse<ProductDTO>> CreateProductAsync(CreateProductDTO request)
+        public async Task<ApiResponse<ProductDTO>> CreateProductAsync(CreateProductDTO request, int userId)
         {
             try
             {
@@ -127,6 +127,7 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
                     Price = request.Price,
                     StockQuantity = request.StockQuantity,
                     CategoryId = request.CategoryId,
+                    CreatedBy = userId,
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -156,7 +157,7 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
         #endregion
 
         #region bulk insert product
-        public async Task<ApiResponse<List<ProductDTO>>> BulkCreateProductsAsync(List<CreateProductDTO> request)
+        public async Task<ApiResponse<List<ProductDTO>>> BulkCreateProductsAsync(List<CreateProductDTO> request, int userId)
         {
             try
             {
@@ -167,6 +168,7 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
                     Price = p.Price,
                     StockQuantity = p.StockQuantity,
                     CategoryId = p.CategoryId,
+                    CreatedBy = userId,
                     CreatedAt = DateTime.UtcNow
                 }).ToList();
 
@@ -195,7 +197,7 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
         #endregion
 
         #region update product
-        public async Task<ApiResponse<ProductDTO>> UpdateProductAsync(int id, UpdateProductDTO request)
+        public async Task<ApiResponse<ProductDTO>> UpdateProductAsync(int id, UpdateProductDTO request, int userId)
         {
             try
             {
@@ -220,6 +222,7 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
                     product.CategoryId = request.CategoryId.Value;
 
                 product.UpdatedAt = DateTime.UtcNow;
+                product.UpdatedBy = userId;
 
                 await _db.SaveChangesAsync();
 
@@ -243,7 +246,7 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
         #endregion
 
         #region delete product
-        public async Task<ApiResponse<bool>> DeleteProductAsync(int id)
+        public async Task<ApiResponse<bool>> DeleteProductAsync(int id, int userId)
         {
             try
             {
@@ -254,6 +257,7 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
                 product.DeleteFlag = true;
                 product.IsActive = false;
                 product.UpdatedAt = DateTime.UtcNow;
+                product.UpdatedBy = userId;
 
                 await _db.SaveChangesAsync();
 
@@ -346,14 +350,15 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
         #endregion
 
         #region create category
-        public async Task<ApiResponse<CategoryDTO>> CreateCategoryAsync(CreateCategoryDTO request)
+        public async Task<ApiResponse<CategoryDTO>> CreateCategoryAsync(CreateCategoryDTO request, int userId)
         {
             try
             {
                 var newCategory = new Tbl_Category
                 {
                     Name = request.Name.Trim(),
-                    Description = request.Description!.Trim(),
+                    Description = request.Description?.Trim(),
+                    CreatedBy = userId,
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -378,7 +383,7 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
         #endregion
 
         #region update category
-        public async Task<ApiResponse<CategoryDTO>> UpdateCategoryAsync(int id, UpdateCategoryDTO request)
+        public async Task<ApiResponse<CategoryDTO>> UpdateCategoryAsync(int id, UpdateCategoryDTO request, int userId)
         {
             try
             {
@@ -391,6 +396,9 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
 
                 if (!string.IsNullOrWhiteSpace(request.Description))
                     category.Description = request.Description.Trim();
+
+                category.UpdatedAt = DateTime.UtcNow;
+                category.UpdatedBy = userId;
 
                 await _db.SaveChangesAsync();
 
@@ -411,7 +419,7 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
         #endregion
 
         #region delete category
-        public async Task<ApiResponse<bool>> DeleteCategoryAsync(int id)
+        public async Task<ApiResponse<bool>> DeleteCategoryAsync(int id, int userId)
         {
             try
             {
@@ -426,6 +434,8 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
                     return ApiResponse<bool>.Fail("Cannot delete category with existing products.");
 
                 category.DeleteFlag = true;
+                category.UpdatedAt = DateTime.UtcNow;
+                category.UpdatedBy = userId;
 
                 await _db.SaveChangesAsync();
 

@@ -27,7 +27,7 @@ public class SaleService : ISaleService
     private IQueryable<Tbl_Product> ActiveProduct => _db.Products.Where(p => !p.DeleteFlag);
 
     #region Create Sale
-    public async Task<ApiResponse<SaleDTO>> CreateSaleAsync(CreateSaleDTO reqSale)
+    public async Task<ApiResponse<SaleDTO>> CreateSaleAsync(CreateSaleDTO reqSale, int userId)
     {
         using var transaction = await _db.Database.BeginTransactionAsync();
         try
@@ -58,7 +58,8 @@ public class SaleService : ISaleService
             {
                 TotalPrice = totalPrice,
                 VoucherCode = "YM-" + DateTime.Now.ToString("yyyyMMddHHmmss"),
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = userId
             };
 
             saveModel.SaleItems = reqSale.Items.Select(item => new Tbl_SaleItem
