@@ -1,9 +1,10 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using POSSampleOWN.domain.Features.Auth;
 using POSSampleOWN.DTOs;
 using POSSampleOWN.Responses;
-using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace POSSampleOWN.Controllers;
 
@@ -18,6 +19,12 @@ public class AuthController : ControllerBase
     {
         _authService = authService;
         _registerService = registerService;
+    }
+
+    private int GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+        return userIdClaim != null ? int.Parse(userIdClaim.Value) : 0;
     }
 
     //[Authorize(Roles = "Admin,Staff")]
@@ -75,7 +82,11 @@ public class AuthController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ApiResponse<UserResponse>.Fail("Invalid update data."));
 
-        var result = await _registerService.UpdateAsync(id, request);
+        var currentUserId = GetCurrentUserId();
+
+        if (id != currentUserId) return Forbid();
+
+        var result = await _registerService.UpdateAsync(id, request, currentUserId);
 
         if (!result.IsSuccess)
         {
@@ -92,7 +103,11 @@ public class AuthController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ApiResponse<UserResponse>.Fail("Invalid password change data."));
 
-        var result = await _registerService.ChangePasswordAsync(id, request);
+        var currentUserId = GetCurrentUserId();
+
+        if (id != currentUserId) return Forbid();
+
+        var result = await _registerService.ChangePasswordAsync(id, request, currentUserId);
 
         if (!result.IsSuccess)
         {

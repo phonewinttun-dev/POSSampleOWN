@@ -78,6 +78,7 @@ namespace POSSampleOWN.Controllers
         }
 
         // DELETE: api/categories/{id}
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {      

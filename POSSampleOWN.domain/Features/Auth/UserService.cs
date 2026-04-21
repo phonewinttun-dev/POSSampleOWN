@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using POSSampleOWN.database.Data;
 using POSSampleOWN.database.Models;
-using POSSampleOWN.Responses;
 using POSSampleOWN.DTOs;
+using POSSampleOWN.Responses;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 
 namespace POSSampleOWN.domain.Features.Auth
@@ -39,11 +40,15 @@ namespace POSSampleOWN.domain.Features.Auth
         #region user registration
         public async Task<ApiResponse<UserResponse>> RegisterAsync(UserRegisterRequest request)
         {
+            if (string.IsNullOrEmpty(request.Name)) return ApiResponse<UserResponse>.Fail("Username cannot be null");
+            
+            var email = request.Email.Trim().ToLower();
+
             // email validation check
-            if (!IsValidEmail(request.Email)) return ApiResponse<UserResponse>.Fail("Invalid email format.");
+            if (!IsValidEmail(email)) return ApiResponse<UserResponse>.Fail("Invalid email format.");
 
             var existingUser = await _context.Users
-                .AnyAsync(u => u.Email == request.Email && !u.DeleteFlag);
+                .AnyAsync(u => u.Email == email && !u.DeleteFlag);
 
             if (existingUser)
             {
@@ -55,7 +60,7 @@ namespace POSSampleOWN.domain.Features.Auth
             var newUser = new Tbl_User
             {
                 Name = request.Name.Trim(),
-                Email = request.Email.Trim(),
+                Email = request.Email.Trim().ToLower(),
                 Password = hashedPassword,
                 Role = request.Role,
                 CreatedAt = DateTime.UtcNow,
@@ -84,8 +89,11 @@ namespace POSSampleOWN.domain.Features.Auth
         #endregion
 
         #region edit user profile
-        public async Task<ApiResponse<UserResponse>> UpdateAsync(int id, UserUpdateRequest request)
+        public async Task<ApiResponse<UserResponse>> UpdateAsync(int id, UserUpdateRequest request,int currentUserId)
         {
+            // current user check
+            if (id != currentUserId) return ApiResponse<UserResponse>.Fail("Unauthorized access!");
+
             try
             {
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id && !u.DeleteFlag);
@@ -102,12 +110,12 @@ namespace POSSampleOWN.domain.Features.Auth
                         return ApiResponse<UserResponse>.Fail("Invalid email format.");
 
                     var emailExists = await _context.Users
-                        .AnyAsync(u => u.Email == request.Email && u.Id != id && !u.DeleteFlag);
+                        .AnyAsync(u => u.Email == request.Email.Trim() && u.Id != id && !u.DeleteFlag);
 
                     if (emailExists)
                         return ApiResponse<UserResponse>.Fail("Email already in use by another user.");
 
-                    user.Email = request.Email.Trim();
+                    user.Email = request.Email.Trim().ToLower();
                 }
 
                 //if (request.Role.HasValue)
@@ -139,8 +147,11 @@ namespace POSSampleOWN.domain.Features.Auth
         #endregion
 
         #region change password
-        public async Task<ApiResponse<UserResponse>> ChangePasswordAsync(int id, ChangePasswordRequest request)
+        public async Task<ApiResponse<UserResponse>> ChangePasswordAsync(int id, ChangePasswordRequest request,int currentUserId)
         {
+            // current user check
+            if (id != currentUserId) return ApiResponse<UserResponse>.Fail("Unauthorized access!");
+
             try
             {
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id && !u.DeleteFlag);
