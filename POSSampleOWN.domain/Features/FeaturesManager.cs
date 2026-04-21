@@ -27,12 +27,20 @@ namespace POSSampleOWN.domain.Features
             options.UseNpgsql(builder.Configuration.GetConnectionString("POSConnectionString")));
             var loyaltySettings = builder.Configuration.GetSection("LoyaltyApiSettings");
 
-            builder.Services.AddHttpClient<IPointService, PointService>(client =>
+            var pointEnabled = builder.Configuration.GetValue<bool>("Features:PointSystemEnabled");
+
+            if (pointEnabled)
             {
-                var baseUrl = builder.Configuration["LoyaltyApiSettings:BaseUrl"];
-                client.BaseAddress = new Uri(baseUrl);
-                client.DefaultRequestHeaders.Add("x-system-id", builder.Configuration["LoyaltyApiSettings:SystemId"]);
-            });
+                builder.Services.AddHttpClient<IPointService, PointService>(client =>
+                {
+                    var baseUrl = builder.Configuration["LoyaltyApiSettings:BaseUrl"];
+                    client.BaseAddress = new Uri(baseUrl);
+                });
+            }
+            else
+            {
+                builder.Services.AddScoped<IPointService, DisabledPointService>();
+            }
             // Register Features
             builder.Services.AddScoped<IProductCatalogService, ProductCatalogService>();
             builder.Services.AddScoped<ISearchService, SearchService>();
