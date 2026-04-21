@@ -37,6 +37,8 @@ public class Tbl_User
     public ICollection<Tbl_Product>? Products { get; set; } = new List<Tbl_Product>();
 
     public ICollection<Tbl_Category> Categories { get; set; } = new List<Tbl_Category>();
+
+    public ICollection<Tbl_Sale> Sales { get; set; } = new List<Tbl_Sale>();
     
     public ICollection<Tbl_User_Token> UserToken { get; set; } = new List<Tbl_User_Token>();
 }

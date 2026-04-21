@@ -5,6 +5,8 @@ using POSSampleOWN.domain.DTOs;
 using POSSampleOWN.Responses;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Security.Claims;
+
 
 namespace POSSampleOWN.Controllers
 {
@@ -18,6 +20,12 @@ namespace POSSampleOWN.Controllers
         public SalesController(ISaleService service)
         {
             _service = service;
+        }
+
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            return userIdClaim != null ? int.Parse(userIdClaim.Value) : 0;
         }
 
         // GET: api/sales
@@ -47,7 +55,7 @@ namespace POSSampleOWN.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ApiResponse<object>.Fail("Invalid sale data."));
 
-            var result = await _service.CreateSaleAsync(createRequest);
+            var result = await _service.CreateSaleAsync(createRequest, GetCurrentUserId());
 
             if (!result.IsSuccess)
             {

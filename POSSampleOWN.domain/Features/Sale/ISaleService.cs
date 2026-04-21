@@ -1,4 +1,4 @@
-﻿using POSSampleOWN.domain.DTOs;
+using POSSampleOWN.domain.DTOs;
 using POSSampleOWN.Responses;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ namespace POSSampleOWN.domain.Features.Sale
 {
     public interface ISaleService
     {
-        Task<ApiResponse<SaleDTO>> CreateSaleAsync(CreateSaleDTO reqSale);
+        Task<ApiResponse<SaleDTO>> CreateSaleAsync(CreateSaleDTO reqSale, int userId);
         ApiResponse<List<SaleDTO>> GetAllSales();
         ApiResponse<SaleDTO> GetSaleById(long id);
         bool ValidateSale(CreateSaleDTO sale);
