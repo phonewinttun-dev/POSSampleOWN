@@ -14,6 +14,7 @@ using POSSampleOWN.domain.Features.Inventory;
 using POSSampleOWN.domain.Features.Sale;
 using POSSampleOWN.domain.Features.Dashboard;
 using POSSampleOWN.domain.Features.Auth;
+using POSSampleOWN.domain.Features.Point;
 
 namespace POSSampleOWN.domain.Features
 {
@@ -24,7 +25,14 @@ namespace POSSampleOWN.domain.Features
             
             builder.Services.AddDbContext<POSSampleOWN.database.Data.POSDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("POSConnectionString")));
-            
+            var loyaltySettings = builder.Configuration.GetSection("LoyaltyApiSettings");
+
+            builder.Services.AddHttpClient<IPointService, PointService>(client =>
+            {
+                var baseUrl = builder.Configuration["LoyaltyApiSettings:BaseUrl"];
+                client.BaseAddress = new Uri(baseUrl);
+                client.DefaultRequestHeaders.Add("x-system-id", builder.Configuration["LoyaltyApiSettings:SystemId"]);
+            });
             // Register Features
             builder.Services.AddScoped<IProductCatalogService, ProductCatalogService>();
             builder.Services.AddScoped<ISearchService, SearchService>();
