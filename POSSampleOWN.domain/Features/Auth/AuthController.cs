@@ -75,47 +75,47 @@ public class AuthController : ControllerBase
         return Ok(ApiResponse<TokenResponse>.Success(result, "Login successful."));
     }
 
-    [Authorize]
-    [HttpPut("users/{id}")]
-    public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateRequest request)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(ApiResponse<UserResponse>.Fail("Invalid update data."));
+    //[Authorize]
+    //[HttpPut("users/{id}")]
+    //public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateRequest request)
+    //{
+    //    if (!ModelState.IsValid)
+    //        return BadRequest(ApiResponse<UserResponse>.Fail("Invalid update data."));
 
-        var currentUserId = GetCurrentUserId();
+    //    var currentUserId = GetCurrentUserId();
 
-        if (id != currentUserId) return Forbid();
+    //    if (id != currentUserId) return Forbid();
 
-        var result = await _registerService.UpdateAsync(id, request, currentUserId);
+    //    var result = await _registerService.UpdateAsync(id, request, currentUserId);
 
-        if (!result.IsSuccess)
-        {
-            return BadRequest(result);
-        }
+    //    if (!result.IsSuccess)
+    //    {
+    //        return BadRequest(result);
+    //    }
 
-        return Ok(result);
-    }
+    //    return Ok(result);
+    //}
 
-    [Authorize]
-    [HttpPost("users/{id}/change-password")]
-    public async Task<IActionResult> ChangePassword(int id, [FromBody] ChangePasswordRequest request)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(ApiResponse<UserResponse>.Fail("Invalid password change data."));
+    //[Authorize]
+    //[HttpPost("users/{id}/change-password")]
+    //public async Task<IActionResult> ChangePassword(int id, [FromBody] ChangePasswordRequest request)
+    //{
+    //    if (!ModelState.IsValid)
+    //        return BadRequest(ApiResponse<UserResponse>.Fail("Invalid password change data."));
 
-        var currentUserId = GetCurrentUserId();
+    //    var currentUserId = GetCurrentUserId();
 
-        if (id != currentUserId) return Forbid();
+    //    if (id != currentUserId) return Forbid();
 
-        var result = await _registerService.ChangePasswordAsync(id, request, currentUserId);
+    //    var result = await _registerService.ChangePasswordAsync(id, request, currentUserId);
 
-        if (!result.IsSuccess)
-        {
-            return BadRequest(result);
-        }
+    //    if (!result.IsSuccess)
+    //    {
+    //        return BadRequest(result);
+    //    }
 
-        return Ok(result);
-    }
+    //    return Ok(result);
+    //}
 
     [Authorize(Roles = "Admin")]
     [HttpDelete("users/{id}")]

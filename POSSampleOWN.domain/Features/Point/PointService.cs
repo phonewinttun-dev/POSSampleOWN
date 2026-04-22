@@ -204,6 +204,7 @@ public class PointService : IPointService
     }
 
     #endregion
+
     public async Task<ApiResponse<List<PendingRedemptionResDTO>>> GetPendingRedemptionsAsync()
     {
         try

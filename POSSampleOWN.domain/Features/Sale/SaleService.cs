@@ -29,30 +29,30 @@ public class SaleService : ISaleService
     #region Create Sale
     public async Task<ApiResponse<SaleDTO>> CreateSaleAsync(CreateSaleDTO reqSale, int userId)
     {
+        if (!ValidateSale(reqSale))
+            return ApiResponse<SaleDTO>.Fail("Invalid sale data.");
+
+        var productIds = reqSale.Items.Select(x => x.ProductId).Distinct().ToList();
+        var products = await ActiveProduct
+                               .Where(p => productIds.Contains(p.Id))
+                               .ToDictionaryAsync(p => p.Id);
+
+        // check product exists & sufficient quantity
+        foreach (var item in reqSale.Items)
+        {
+            if (!products.TryGetValue(item.ProductId, out var product))
+                return ApiResponse<SaleDTO>.Fail($"Product {item.ProductId} not found.");
+
+            if (product.StockQuantity < item.Quantity)
+                return ApiResponse<SaleDTO>.Fail($"Insufficient stock for {product.Name}.");
+
+            // reduce stock quantity
+            product.StockQuantity -= item.Quantity;
+        }
+
         using var transaction = await _db.Database.BeginTransactionAsync();
         try
         {
-            if (!ValidateSale(reqSale))
-                return ApiResponse<SaleDTO>.Fail("Invalid sale data.");
-
-            var productIds = reqSale.Items.Select(x => x.ProductId).Distinct().ToList();
-            var products = await ActiveProduct
-                                   .Where(p => productIds.Contains(p.Id))
-                                   .ToDictionaryAsync(p => p.Id);
-
-            // check product exists & sufficient quantity
-            foreach (var item in reqSale.Items)
-            {
-                if (!products.TryGetValue(item.ProductId, out var product))
-                    return ApiResponse<SaleDTO>.Fail($"Product {item.ProductId} not found.");
-
-                if (product.StockQuantity < item.Quantity)
-                    return ApiResponse<SaleDTO>.Fail($"Insufficient stock for {product.Name}.");
-
-                // reduce stock quantity
-                product.StockQuantity -= item.Quantity;
-            }
-
             decimal totalPrice = TotalPrice(reqSale);
             var saveModel = new Tbl_Sale
             {
@@ -165,7 +165,9 @@ public class SaleService : ISaleService
             return false;
         foreach (var item in sale.Items)
         {
-            if (item.Quantity <= 0)
+            if (item == null)
+                return false;
+            if (item.Quantity <= 0 )
                 return false;
         }
         return true;
