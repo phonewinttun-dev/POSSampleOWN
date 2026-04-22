@@ -1,18 +1,21 @@
 using Microsoft.EntityFrameworkCore;
 using POSSampleOWN.database.Data;
-using POSSampleOWN.DTOs;
 using POSSampleOWN.database.Models;
+using POSSampleOWN.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static POSSampleOWN.DTOs.SearchProductRequestDTO;
 
 namespace POSSampleOWN.domain.Features.Search
 {
     public class SearchService : ISearchService
     {
         private readonly POSDbContext _db;
+
+     
 
         public SearchService(POSDbContext db)
         {
@@ -22,7 +25,37 @@ namespace POSSampleOWN.domain.Features.Search
             .AsNoTracking()
             .Where(p => !p.DeleteFlag);
 
-        public async Task<List<ProductDTO>> SearchProductsAsync(SearchRequestDTO searchRequest)
+        private IQueryable<Tbl_Category> ActiveCategoryQuery => _db.Categories
+            .AsNoTracking()
+            .Where(c => !c.DeleteFlag);
+
+        public Task<List<CategoryDTO>> SearchCategoryAsync(SearchCategoryRequestDTO searchRequest)
+        {
+            var query = ActiveCategoryQuery.AsQueryable();
+
+            if(searchRequest.Name != null)
+                query = query.Where(c => c.Name.ToLower().Contains(searchRequest.Name.ToLower()));
+
+            if(searchRequest.IsDescending)
+                query = query.OrderByDescending(c => c.Name);
+            else
+                query = query.OrderBy(c => c.Name);
+
+            var categories = query
+                .Skip((searchRequest.PageNumber - 1) * searchRequest.PageSize)
+                .Take(searchRequest.PageSize)
+                .Select(c => new CategoryDTO
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Description = c.Description,
+                })
+                .ToListAsync();
+
+           return categories;
+        }
+
+        public async Task<List<ProductDTO>> SearchProductsAsync(SearchProductRequestDTO searchRequest)
         {
             var query = ActiveProductQuery.AsQueryable();
 
@@ -48,13 +81,13 @@ namespace POSSampleOWN.domain.Features.Search
                 query = query.Where(p => p.StockQuantity <= searchRequest.MaxStockQuantity.Value);
 
             if (!string.IsNullOrEmpty(searchRequest.Name))
-                query = query.Where(p => p.Name.Contains(searchRequest.Name));
+                query = query.Where(p => p.Name.ToLower().Contains(searchRequest.Name.ToLower()));
 
             query = searchRequest.SortBy switch
             {
-                "Name" => searchRequest.IsDescending ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name),
-                "Price" => searchRequest.IsDescending ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price),
-                "CreatedAt" => searchRequest.IsDescending ? query.OrderByDescending(p => p.CreatedAt) : query.OrderBy(p => p.CreatedAt),
+                SearchProductRequestDTO.SortOptions.name => searchRequest.IsDescending ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name),
+                SearchProductRequestDTO.SortOptions.price => searchRequest.IsDescending ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price),
+                SearchProductRequestDTO.SortOptions.createdDate => searchRequest.IsDescending ? query.OrderByDescending(p => p.CreatedAt) : query.OrderBy(p => p.CreatedAt),
                 _ => query
             };
 
@@ -74,5 +107,7 @@ namespace POSSampleOWN.domain.Features.Search
 
             return products;
         }
+
+        
     }
 }

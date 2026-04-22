@@ -9,7 +9,7 @@
         public decimal? Price { get; set; }
     }
 
-    public class SearchRequestDTO
+    public class SearchProductRequestDTO
     {
         public int? CategoryId { get; set; }
         public decimal? MinPrice { get; set; }
@@ -19,7 +19,22 @@
         public int? MinStockQuantity { get; set; }
         public int? MaxStockQuantity { get; set; }
         public string? Name { get; set; }
-        public string SortBy { get; set; } = "Name";
+
+        public enum SortOptions
+        {
+            name,
+            price,
+            createdDate
+        }
+        public SortOptions SortBy { get; set; } = 0;
+        public bool IsDescending { get; set; } = false;
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 20;
+    }
+
+    public class SearchCategoryRequestDTO
+    {
+        public string? Name { get; set; }
         public bool IsDescending { get; set; } = false;
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 20;
