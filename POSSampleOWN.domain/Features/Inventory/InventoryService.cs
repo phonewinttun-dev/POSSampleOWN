@@ -23,11 +23,11 @@ namespace POSSampleOWN.domain.Features.Inventory
         {
             try
             {
+                if (quantity <= 0)
+                    return ApiResponse<bool>.Fail("Quantity must be greater than zero.");
+
                 var product = await ActiveProduct.FirstOrDefaultAsync(p => p.Id == productId);
                 if (product is null) return ApiResponse<bool>.Fail("Product not found");
-
-                if (product.StockQuantity == 0)
-                    return ApiResponse<bool>.Fail("Quantity cannot be zero.");
 
                 product.StockQuantity += quantity;
                 product.UpdatedAt = DateTime.UtcNow;
@@ -75,7 +75,7 @@ namespace POSSampleOWN.domain.Features.Inventory
         #endregion
 
         #region get low stock alert
-        public async Task<ApiResponse<List<ProductDTO>>> GetLowStockAlertsAsync(int lowStock)
+        public async Task<ApiResponse<List<ProductDTO>>> GetLowStockAlertsAsync(int lowStock = 5)
         {
             try
             {
