@@ -25,7 +25,7 @@ namespace POSSampleOWN.domain.Features.Search
 
         // GET : api/search
         [HttpGet]
-        public async Task<IActionResult> SearchProducts([FromQuery] SearchRequestDTO searchRequest)
+        public async Task<IActionResult> SearchProducts([FromQuery] SearchProductRequestDTO searchRequest)
         {
             if (!ModelState.IsValid)
             {
@@ -53,8 +53,38 @@ namespace POSSampleOWN.domain.Features.Search
                     Message = $"An error occurred while searching for products: {ex.Message}"
                 });
             }
+        }
 
-
+        // GET : api/search/categories
+        [HttpGet("categories")]
+        public async Task<IActionResult> SearchCategories([FromQuery] SearchCategoryRequestDTO searchRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Invalid search parameters."
+                });
+            }
+            try
+            {
+                var categories = await _service.SearchCategoryAsync(searchRequest);
+                return Ok(new ApiResponse<object>
+                {
+                    IsSuccess = true,
+                    Message = "Search completed successfully.",
+                    Data = categories
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An error occurred while searching for categories: {ex.Message}"
+                });
+            }
 
         }
     }
