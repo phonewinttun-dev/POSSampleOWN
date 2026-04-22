@@ -35,6 +35,8 @@ namespace POSSampleOWN.domain.Features
                 {
                     var baseUrl = builder.Configuration["LoyaltyApiSettings:BaseUrl"];
                     client.BaseAddress = new Uri(baseUrl);
+                    var systemId = builder.Configuration["LoyaltyApiSettings:SystemId"];
+                    client.DefaultRequestHeaders.Add("X-System-Id", systemId);
                 });
             }
             else

@@ -36,6 +36,13 @@ public class PointController : ControllerBase
         return Ok(result);
     }
     [AllowAnonymous]
+    [HttpGet("accounts/lookup/{userId}")]
+    public async Task<IActionResult> LookupAccount(string userId)
+    {
+        var result = await _service.LookupAccountAsync(userId);
+        return Ok(result);
+    }
+    [AllowAnonymous]
     [HttpGet("balance-lookup")]
     public async Task<IActionResult> GetBalance([FromQuery] CheckBalanceReqDTO request)
     {

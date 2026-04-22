@@ -16,7 +16,8 @@ public class DisabledPointService : IPointService
 
     public Task<ApiResponse<AccountListResponseWrapper>> GetAccountsAsync(AccountListReqDTO request)
         => Task.FromResult(ApiResponse<AccountListResponseWrapper>.Fail("Point system is disabled"));
-
+    public Task<ApiResponse<AccountLookupResponse>> LookupAccountAsync(string userId)
+        => Task.FromResult(ApiResponse<AccountLookupResponse>.Fail("Point system is disabled"));
     public Task<ApiResponse<CheckBalanceResDTO>> GetUserBalanceAsync(CheckBalanceReqDTO request)
         => Task.FromResult(ApiResponse<CheckBalanceResDTO>.Fail("Point system is disabled"));
 

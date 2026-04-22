@@ -8,6 +8,7 @@ namespace POSSampleOWN.domain.Features.Point
     {
         Task<ApiResponse<ClaimRewardResDTO>> ClaimRewardAsync(ClaimRewardReqDTO request);
         Task<ApiResponse<CreateAccountResDTO>> CreateAccountAsync(CreateAccountReqDTO request);
+        Task<ApiResponse<AccountLookupResponse>> LookupAccountAsync(string userId);
         Task<ApiResponse<EarnPointResDTO>> EarnPointsAsync(EarnPointReqDTO request);
         Task<ApiResponse<AccountListResponseWrapper>> GetAccountsAsync(AccountListReqDTO request);
         Task<ApiResponse<List<AvailableRewardResDTO>>> GetAvailableRewardsAsync();

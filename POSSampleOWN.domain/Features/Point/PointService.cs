@@ -80,6 +80,33 @@ public class PointService : IPointService
             return ApiResponse<AccountListResponseWrapper>.Fail($"Internal Error: {ex.Message}");
         }
     }
+    public async Task<ApiResponse<AccountLookupResponse>> LookupAccountAsync(string  userId)
+    {
+        try
+        {
+            string SystemId = "YaungMel";
+            var url = $"accounts/lookup/{SystemId}/{userId}";
+
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+
+            var response = await _client.SendAsync(requestMessage);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<AccountLookupResponse>();
+                return result != null
+                    ? ApiResponse<AccountLookupResponse>.Success(result)
+                    : ApiResponse<AccountLookupResponse>.Fail("Account detail not found.");
+            }
+
+            return ApiResponse<AccountLookupResponse>.Fail($"Error: {response.StatusCode}");
+        }
+        catch (Exception ex)
+        {
+            return ApiResponse<AccountLookupResponse>.Fail($"Internal Error: {ex.Message}");
+        }
+    }
+
     public async Task<ApiResponse<CheckBalanceResDTO>> GetUserBalanceAsync(CheckBalanceReqDTO request)
     {
         try

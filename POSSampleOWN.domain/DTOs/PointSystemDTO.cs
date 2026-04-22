@@ -168,3 +168,12 @@ public class UpdateRedemptionStatusReqDTO
     [JsonPropertyName("status")]
     public RedemptionStatus Status { get; set; }
 }
+
+public class AccountLookupResponse
+{
+    public Guid AccountId { get; set; }
+    public string ExternalUserId { get; set; } = string.Empty;
+    public decimal CurrentBalance { get; set; }
+    public int LifetimePoints { get; set; }
+    public string Tier { get; set; } = string.Empty;
+}
