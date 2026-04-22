@@ -18,7 +18,6 @@ public class DashboardController : ControllerBase
         _service = service;
     }
 
-    // GET: api/dashboard/overview?startDate=2026-01-01&endDate=2026-04-11
     [HttpGet("overview")]
     public IActionResult GetSalesOverview([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
     {
@@ -28,7 +27,6 @@ public class DashboardController : ControllerBase
         return Ok(result);
     }
 
-    // GET: api/dashboard/sales-per-period?period=day
     [HttpGet("sales-per-period")]
     public IActionResult GetSalesPerPeriod([FromQuery] string period = "day")
     {
@@ -38,7 +36,6 @@ public class DashboardController : ControllerBase
         return Ok(result);
     }
 
-    // GET: api/dashboard/report?range=1month
     [HttpGet("report")]
     public IActionResult GetSalesReport([FromQuery] string range = "1month")
     {
@@ -48,7 +45,6 @@ public class DashboardController : ControllerBase
         return Ok(result);
     }
 
-    // GET: api/dashboard/top-products?top=10
     [HttpGet("top-products")]
     public IActionResult GetTopProducts([FromQuery] int top = 10)
     {

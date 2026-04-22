@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace POSSampleOWN.domain.DTOs;
 
-// ─── [1] Sales Overview ───
+
 public class SalesOverviewDTO
 {
     public decimal TotalRevenue { get; set; }
@@ -12,7 +12,7 @@ public class SalesOverviewDTO
     public DateTime EndDate { get; set; }
 }
 
-// ─── [2] Sales Per Period ───
+
 public class SalesPerPeriodDTO
 {
     public string Period { get; set; } = null!;
@@ -26,7 +26,6 @@ public class SalesPeriodGroupDTO
     public int TotalSales { get; set; }
 }
 
-// ─── [3] Sales Report ───
 public class SalesReportDTO
 {
     public string ReportRange { get; set; } = null!;
@@ -42,7 +41,7 @@ public class SalesReportGroupDTO
     public int Sales { get; set; }
 }
 
-// ─── [4] Top Products ───
+
 public class TopProductDTO
 {
     public int ProductId { get; set; }
