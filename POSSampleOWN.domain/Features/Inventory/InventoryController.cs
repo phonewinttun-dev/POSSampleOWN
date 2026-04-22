@@ -19,7 +19,7 @@ namespace POSSampleOWN.Controllers
             _service = service;
         }
 
-        [HttpPatch("increase-stock/{id}")]
+        [HttpPatch("increase-stock")]
         public async Task<IActionResult> IncreaseStock([FromBody] StockAdjustmentDTO request)
         {
             if (!ModelState.IsValid) return BadRequest(ApiResponse<object>.Fail("Invalid request data."));
@@ -29,7 +29,7 @@ namespace POSSampleOWN.Controllers
             return Ok(result);
         }
 
-        [HttpPatch("reduce-stock/{id}")]
+        [HttpPatch("reduce-stock")]
         public async Task<IActionResult> ReduceStock([FromBody] StockAdjustmentDTO request)
         {
             if (!ModelState.IsValid) return BadRequest(ApiResponse<object>.Fail("Invalid request data."));

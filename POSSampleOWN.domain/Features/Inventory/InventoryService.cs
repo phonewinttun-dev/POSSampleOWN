@@ -67,8 +67,6 @@ namespace POSSampleOWN.domain.Features.Inventory
             }
             catch (Exception)
             {
-                //Console.WriteLine(ex.Message);
-                
                 return ApiResponse<bool>.Fail("Unexpected error occured.");
             }
         }

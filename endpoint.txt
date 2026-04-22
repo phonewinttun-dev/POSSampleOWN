@@ -1,0 +1,56 @@
+Extracted endpoints (generated 2026-04-22):
+
+SearchController
+GET api/search
+
+InventoryController
+PATCH api/inventory/increase-stock
+PATCH api/inventory/reduce-stock
+GET api/inventory/low-stock?lowStock=
+PATCH api/inventory/{id}
+
+SalesController
+GET api/sales
+GET api/sales/{id}
+POST api/sales
+
+CategoriesController
+GET api/categories
+GET api/categories/{id}
+POST api/categories
+PATCH api/categories/{id}
+DELETE api/categories/{id}
+GET api/categories/search?term=
+
+AuthController
+POST api/auth/register
+POST api/auth/login
+DELETE api/auth/users/{id}
+
+ProductsController
+GET api/products
+GET api/products/{id}
+GET api/products/availableProducts
+POST api/products
+POST api/products/bulk
+PATCH api/products/{id}
+DELETE api/products/{id}
+GET api/products/search?term=
+
+PointController
+POST api/points/accounts
+GET api/points/accounts
+GET api/points/accounts/lookup/{userId}
+GET api/points/balance-lookup? (query)
+POST api/points/earn
+GET api/points/rewards/available
+POST api/points/redemption/claim
+GET api/points/accounts/{accountId}/history
+GET api/points/admin/redemptions/pending
+PUT api/points/admin/redemptions/{id}/status
+
+DashboardController
+GET api/dashboard/overview?startDate=&endDate=
+GET api/dashboard/sales-per-period?period=
+GET api/dashboard/report?range=
+GET api/dashboard/top-products?top=
