@@ -41,7 +41,7 @@ public class SaleService : ISaleService
         foreach (var item in reqSale.Items)
         {
             if (!products.TryGetValue(item.ProductId, out var product))
-                return ApiResponse<SaleDTO>.Fail($"Product {item.ProductId} not found.");
+                return ApiResponse<SaleDTO>.Fail($"Product with ID: {item.ProductId} not found.");
 
             if (product.StockQuantity < item.Quantity)
                 return ApiResponse<SaleDTO>.Fail($"Insufficient stock for {product.Name}.");

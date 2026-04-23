@@ -17,23 +17,41 @@ namespace POSSampleOWN.domain.Features.Auth
             _context = context;
         }
 
-        #region email validation
-        public bool IsValidEmail(string email)
+        #region mobile number and password validation
+        public bool IsValidMobileNum(string phone)
         {
-            if (string.IsNullOrWhiteSpace(email))
+            if (string.IsNullOrWhiteSpace(phone))
                 return false;
 
-            try
-            {
-                return Regex.IsMatch(email,
-                    @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
-                    RegexOptions.IgnoreCase,
-                    TimeSpan.FromMilliseconds(250));
-            }
-            catch (RegexMatchTimeoutException)
-            {
+            // Strip spaces and dashes
+            string clean = phone.Replace(" ", "").Replace("-", "");
+
+            if (clean.Length < 7 || clean.Length > 15)
                 return false;
+
+            for (int i = 0; i < clean.Length; i++)
+            {
+                char c = clean[i];
+
+                if (i == 0 && c == '+')
+                    continue;
+
+                if (!char.IsDigit(c))
+                    return false;
             }
+
+            return true;
+        }
+
+        public (bool IsValid, string Message) ValidatePassword(string password)
+        {
+            int passLen = password.Length;
+
+            if (passLen < 12 || passLen > 24)
+            {
+                return (false, $"password must be between 12 and 24 characters (got {passLen})");
+            }
+            return (true, string.Empty);
         }
         #endregion
 
@@ -42,17 +60,21 @@ namespace POSSampleOWN.domain.Features.Auth
         {
             if (string.IsNullOrEmpty(request.Name)) return ApiResponse<UserResponse>.Fail("Username cannot be null");
             
-            var email = request.Email.Trim().ToLower();
+            var mobileNum = request.MobileNum.Trim();
 
-            // email validation check
-            if (!IsValidEmail(email)) return ApiResponse<UserResponse>.Fail("Invalid email format.");
+            // mobile number validation check
+            if (!IsValidMobileNum(mobileNum)) return ApiResponse<UserResponse>.Fail("Invalid mobile number format.");
+
+            // password validation check
+            var passValidation = ValidatePassword(request.Password);
+            if (!passValidation.IsValid) return ApiResponse<UserResponse>.Fail(passValidation.Message);
 
             var existingUser = await _context.Users
-                .AnyAsync(u => u.Email == email && !u.DeleteFlag);
+                .AnyAsync(u => u.MobileNum == mobileNum && !u.DeleteFlag);
 
             if (existingUser)
             {
-                return ApiResponse<UserResponse>.Fail("User with this email already exists.");
+                return ApiResponse<UserResponse>.Fail("User with this mobile number already exists.");
             }
 
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
@@ -60,7 +82,7 @@ namespace POSSampleOWN.domain.Features.Auth
             var newUser = new Tbl_User
             {
                 Name = request.Name.Trim(),
-                Email = request.Email.Trim().ToLower(),
+                MobileNum = request.MobileNum.Trim(),
                 Password = hashedPassword,
                 Role = request.Role,
                 CreatedAt = DateTime.UtcNow,
@@ -104,18 +126,18 @@ namespace POSSampleOWN.domain.Features.Auth
                 if (!string.IsNullOrWhiteSpace(request.Name))
                     user.Name = request.Name.Trim();
 
-                if (!string.IsNullOrWhiteSpace(request.Email))
+                if (!string.IsNullOrWhiteSpace(request.MobileNum))
                 {
-                    if (!IsValidEmail(request.Email))
-                        return ApiResponse<UserResponse>.Fail("Invalid email format.");
+                    if (!IsValidMobileNum(request.MobileNum))
+                        return ApiResponse<UserResponse>.Fail("Invalid mobile number format.");
 
-                    var emailExists = await _context.Users
-                        .AnyAsync(u => u.Email == request.Email.Trim() && u.Id != id && !u.DeleteFlag);
+                    var mobileExists = await _context.Users
+                        .AnyAsync(u => u.MobileNum == request.MobileNum.Trim() && u.Id != id && !u.DeleteFlag);
 
-                    if (emailExists)
-                        return ApiResponse<UserResponse>.Fail("Email already in use by another user.");
+                    if (mobileExists)
+                        return ApiResponse<UserResponse>.Fail("Mobile number already in use by another user.");
 
-                    user.Email = request.Email.Trim().ToLower();
+                    user.MobileNum = request.MobileNum.Trim();
                 }
 
                 //if (request.Role.HasValue)
@@ -162,6 +184,9 @@ namespace POSSampleOWN.domain.Features.Auth
                 if (!BCrypt.Net.BCrypt.Verify(request.OldPassword, user.Password))
                     return ApiResponse<UserResponse>.Fail("Invalid old password.");
              
+                var passValidation = ValidatePassword(request.NewPassword);
+                if (!passValidation.IsValid) return ApiResponse<UserResponse>.Fail(passValidation.Message);
+
                 user.Password = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
 
                 user.UpdatedAt = DateTime.UtcNow;
