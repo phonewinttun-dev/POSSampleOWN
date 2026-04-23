@@ -21,6 +21,7 @@ public class DashboardController : ControllerBase
     [HttpGet("overview")]
     public IActionResult GetSalesOverview([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
         var result = _service.GetSalesOverview(startDate, endDate);
         if (!result.IsSuccess)
             return BadRequest(result);
