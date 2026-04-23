@@ -56,7 +56,7 @@ public class AuthController : ControllerBase
 
         if (result == null)
         {
-            return Unauthorized(ApiResponse<object>.Fail("Invalid email or password."));
+            return Unauthorized(ApiResponse<object>.Fail("Invalid mobile number or password."));
         }
 
         // Store refresh token in HttpOnly cookie
