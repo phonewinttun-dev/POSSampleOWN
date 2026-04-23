@@ -1,8 +1,9 @@
 {
 	"info": {
-		"_postman_id": "e1286066-501f-4ab5-a787-2adf23e4f26e",
+		"_postman_id": "2d799c84-4f7e-439a-9852-188444c1b2c3",
 		"name": "MiniPOS",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43114688"
 	},
 	"item": [
 		{
@@ -519,6 +520,132 @@
 								"api",
 								"inventory",
 								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Search",
+			"item": [
+				{
+					"name": "Search Product",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/search",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"search"
+							],
+							"query": [
+								{
+									"key": "CategoryId",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "Name",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "MinPrice",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "MaxPrice",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "StartDate",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "EndDate",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "MinStockQuantity",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "MaxStockQuantity",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "SortBy",
+									"value": "0",
+									"disabled": true
+								},
+								{
+									"key": "IsDescending",
+									"value": "true",
+									"disabled": true
+								},
+								{
+									"key": "PageNumber",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "PageSize",
+									"value": "1",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/search/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"search",
+								"categories"
+							],
+							"query": [
+								{
+									"key": "Name",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "IsDescending",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "PageNumber",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "PageSize",
+									"value": null,
+									"disabled": true
+								}
 							]
 						}
 					},
