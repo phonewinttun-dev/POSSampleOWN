@@ -25,7 +25,15 @@ public class PointService : IPointService
     {
         try
         {
-            var response = await _client.PostAsJsonAsync("accounts", request);
+            CreateAccount send = new CreateAccount
+            {
+                SystemId = "YaungMel",
+                ExternalUserId = "YMP-" + request.Mobile,
+                Tier = request.Tier,
+                Mobile = "09" + request.Mobile,
+                Email = request.Email
+            };
+            var response = await _client.PostAsJsonAsync("accounts", send);
 
             if (response.IsSuccessStatusCode)
             {

@@ -100,6 +100,21 @@ public class CreateAccountReqDTO
     //[JsonPropertyName("systemId")]
     //public string SystemId { get; set; } = "YaungMel";
 
+    [JsonPropertyName("tier")]
+    public CustomerTier Tier { get; set; }
+
+    [JsonPropertyName("mobile")]
+    public string Mobile { get; set; }
+
+    [JsonPropertyName("email")]
+    public string Email { get; set; }
+}
+
+public class CreateAccount
+{
+    [JsonPropertyName("systemId")]
+    public string SystemId { get; set; }
+
     [JsonPropertyName("externalUserId")]
     public string ExternalUserId { get; set; }
 
@@ -112,7 +127,6 @@ public class CreateAccountReqDTO
     [JsonPropertyName("email")]
     public string Email { get; set; }
 }
-
 public class CreateAccountResDTO
 {
     public string Id { get; set; }
