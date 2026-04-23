@@ -13,7 +13,7 @@ public class Tbl_User
 
     [Required]
     [MaxLength(100)]
-    public string Email { get; set; } = string.Empty;
+    public string MobileNum { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(255)]

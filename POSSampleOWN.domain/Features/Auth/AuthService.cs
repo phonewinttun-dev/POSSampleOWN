@@ -25,7 +25,7 @@ public class AuthService : IAuthService
     public async Task<TokenResponse?> LoginAsync(LoginRequest request)
     {
         var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Email == request.Email && !u.DeleteFlag);
+            .FirstOrDefaultAsync(u => u.MobileNum == request.MobileNum && !u.DeleteFlag);
 
         if (user == null) return null;
 
@@ -54,7 +54,7 @@ public class AuthService : IAuthService
         {
             AccessToken = accessToken,
             RefreshToken = refreshToken,
-            Email = user.Email,
+            MobileNum = user.MobileNum,
             Role = user.Role.ToString()
         };
     }
@@ -91,7 +91,7 @@ public class AuthService : IAuthService
         {
             AccessToken = newAccessToken,
             RefreshToken = newRefreshToken,
-            Email = user.Email,
+            MobileNum = user.MobileNum,
             Role = user.Role.ToString()
         };
     }

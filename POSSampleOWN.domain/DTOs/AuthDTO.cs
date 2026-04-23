@@ -6,8 +6,7 @@ namespace POSSampleOWN.DTOs
     public class LoginRequest
     {
         [Required]
-        [EmailAddress]
-        public string Email { get; set; } = string.Empty;
+        public string MobileNum { get; set; } = string.Empty;
 
         [Required]
         public string Password { get; set; } = string.Empty;
@@ -23,7 +22,7 @@ namespace POSSampleOWN.DTOs
     {
         public string AccessToken { get; set; } = string.Empty;
         public string RefreshToken { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
+        public string MobileNum { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
     }
 
@@ -34,9 +33,7 @@ namespace POSSampleOWN.DTOs
         public string Name { get; set; } = string.Empty;
 
         [Required]
-        [EmailAddress]
-        [MaxLength(100)]
-        public string Email { get; set; } = string.Empty;
+        public string MobileNum { get; set; } = string.Empty;
 
         [Required]
         [MinLength(6)]
@@ -55,7 +52,7 @@ namespace POSSampleOWN.DTOs
     public class UserUpdateRequest
     {
         public string? Name { get; set; }
-        public string? Email { get; set; }
+        public string? MobileNum { get; set; }
         public string? Password { get; set; }
         public Tbl_User.UserRole? Role { get; set; }
     }
