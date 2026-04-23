@@ -71,6 +71,7 @@ namespace POSSampleOWN.Controllers
                 result);
         }
 
+        // this endpoint is just for testing
         // POST: api/products/bulk
         [HttpPost("bulk")]
         public async Task<IActionResult> BulkCreate([FromBody] List<CreateProductDTO> bulkRequest)
@@ -87,6 +88,7 @@ namespace POSSampleOWN.Controllers
         }
 
         // PATCH: api/products/{id}
+        [Authorize(Roles = "Admin")]
         [HttpPatch("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDTO updateRequest)
         {

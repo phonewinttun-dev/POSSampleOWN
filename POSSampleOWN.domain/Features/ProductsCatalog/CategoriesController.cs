@@ -63,6 +63,7 @@ namespace POSSampleOWN.Controllers
         }
 
         // PATCH: api/categories/{id}
+        [Authorize(Roles = "Admin")]
         [HttpPatch("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateCategoryDTO request)
         {

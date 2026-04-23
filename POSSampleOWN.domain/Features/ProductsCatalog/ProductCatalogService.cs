@@ -71,7 +71,9 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
                     Description = product.Description,
                     Price = product.Price,
                     StockQuantity = product.StockQuantity,
-                    CategoryId = product.CategoryId
+                    CategoryId = product.CategoryId,
+                    IsActive = product.IsActive,
+                    DeleteFlag= product.DeleteFlag
                 };
 
                 return ApiResponse<ProductDTO>.Success(data);
@@ -97,7 +99,9 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
                         Description = p.Description,
                         Price = p.Price,
                         StockQuantity = p.StockQuantity,
-                        CategoryId = p.CategoryId
+                        CategoryId = p.CategoryId,
+                        IsActive = p.IsActive,
+                        DeleteFlag= p.DeleteFlag
                     })
                     .ToListAsync();
 
@@ -115,6 +119,11 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
         {
             try
             {
+                var duplicateProduct = await _db.Products
+                    .AnyAsync(p => p.Name.ToLower() == request.Name.Trim().ToLower() && !p.DeleteFlag);
+
+                if (duplicateProduct) return ApiResponse<ProductDTO>.Fail("Product with the same name already exists.");
+
                 var categoryExists = await _db.Categories
                     .AnyAsync(c => c.Id == request.CategoryId && !c.DeleteFlag);
 
@@ -127,6 +136,8 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
                     Price = request.Price,
                     StockQuantity = request.StockQuantity,
                     CategoryId = request.CategoryId,
+                    IsActive = true,
+                    DeleteFlag = false,
                     CreatedBy = userId,
                     CreatedAt = DateTime.UtcNow
                 };
@@ -168,6 +179,8 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
                     Price = p.Price,
                     StockQuantity = p.StockQuantity,
                     CategoryId = p.CategoryId,
+                    IsActive = true,
+                    DeleteFlag = false,
                     CreatedBy = userId,
                     CreatedAt = DateTime.UtcNow
                 }).ToList();
@@ -206,8 +219,19 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
                 if (product is null || product.DeleteFlag == true)
                     return ApiResponse<ProductDTO>.Fail("Product not found");
 
-                if (request.Name != null)
+                if (!string.IsNullOrWhiteSpace(request.Name))
+                { 
+                    var isDuplicate = await _db.Products.AnyAsync(p =>
+                        p.Id != id &&
+                        !p.DeleteFlag &&
+                        p.Name != null &&
+                        p.Name.ToLower() == request.Name.Trim().ToLower());
+
+                    if (isDuplicate)
+                        return ApiResponse<ProductDTO>.Fail("Another product with the same name already exists.");
+
                     product.Name = request.Name.Trim();
+                }
 
                 if (request.Description != null)
                     product.Description = request.Description.Trim();
@@ -354,6 +378,11 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
         {
             try
             {
+                var duplicateCategory = await _db.Categories
+                    .AnyAsync(c => c.Name.ToLower() == request.Name.Trim().ToLower() && !c.DeleteFlag);
+
+                if (duplicateCategory) return ApiResponse<CategoryDTO>.Fail("Category with same name exists.");
+    
                 var newCategory = new Tbl_Category
                 {
                     Name = request.Name.Trim(),
@@ -392,7 +421,18 @@ namespace POSSampleOWN.domain.Features.ProductsCatalog
                 if (category is null) return ApiResponse<CategoryDTO>.Fail("Category not found.");
 
                 if (!string.IsNullOrWhiteSpace(request.Name))
+                {
+                    var isDuplicate = await _db.Products.AnyAsync(c =>
+                        c.Id != id &&
+                        !c.DeleteFlag &&
+                        c.Name != null &&
+                        c.Name.ToLower() == request.Name.Trim().ToLower());
+
+                    if (isDuplicate)
+                        return ApiResponse<CategoryDTO>.Fail("Another category with the same name already exists.");
+
                     category.Name = request.Name.Trim();
+                }
 
                 if (!string.IsNullOrWhiteSpace(request.Description))
                     category.Description = request.Description.Trim();

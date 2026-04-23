@@ -58,25 +58,28 @@ namespace POSSampleOWN.domain.Features.Auth
         #region user registration
         public async Task<ApiResponse<UserResponse>> RegisterAsync(UserRegisterRequest request)
         {
-            if (string.IsNullOrEmpty(request.Name)) return ApiResponse<UserResponse>.Fail("Username cannot be null");
-            
-            var mobileNum = request.MobileNum.Trim();
+            if (string.IsNullOrWhiteSpace(request.Name)) return ApiResponse<UserResponse>.Fail("Username cannot be null");
 
             // mobile number validation check
+            var mobileNum = request.MobileNum.Trim();
+
+            if (string.IsNullOrWhiteSpace(request.MobileNum)) return ApiResponse<UserResponse>.Fail("Mobile number is required.");
+
             if (!IsValidMobileNum(mobileNum)) return ApiResponse<UserResponse>.Fail("Invalid mobile number format.");
 
             // password validation check
+            if (string.IsNullOrWhiteSpace(request.Password)) return ApiResponse<UserResponse>.Fail("Password required.");
+
             var passValidation = ValidatePassword(request.Password);
+
             if (!passValidation.IsValid) return ApiResponse<UserResponse>.Fail(passValidation.Message);
 
+            // duplication check
             var existingUser = await _context.Users
                 .AnyAsync(u => u.MobileNum == mobileNum && !u.DeleteFlag);
 
-            if (existingUser)
-            {
-                return ApiResponse<UserResponse>.Fail("User with this mobile number already exists.");
-            }
-
+            if (existingUser) return ApiResponse<UserResponse>.Fail("User with this mobile number already exists.");
+            
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
             var newUser = new Tbl_User
