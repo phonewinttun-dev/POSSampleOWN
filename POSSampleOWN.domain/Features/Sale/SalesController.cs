@@ -38,9 +38,9 @@ namespace POSSampleOWN.Controllers
 
         // GET: api/sales/{id}
         [HttpGet("{id}")]
-        public IActionResult GetById(long id)
+        public IActionResult GetByVoucherCode(string voucherCode)
         {
-            var result = _service.GetSaleById(id);
+            var result = _service.GetSaleByVouncherCode(voucherCode);
             if (!result.IsSuccess)
             {
                 return NotFound(result);
@@ -63,7 +63,7 @@ namespace POSSampleOWN.Controllers
             }
 
             return CreatedAtAction(
-                nameof(GetById),
+                nameof(GetByVoucherCode),
                 new { id = result.Data!.Id },
                 result);
         }
