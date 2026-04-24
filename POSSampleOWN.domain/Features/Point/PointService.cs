@@ -283,4 +283,30 @@ public class PointService : IPointService
             return ApiResponse<bool>.Fail($"Internal Error: {ex.Message}");
         }
     }
+
+    public async Task<ApiResponse<CreateRewardResDTO>> CreateRewardAsync(CreateRewardReqDTO request)
+    {
+        try
+        {
+
+            request.SystemId = "YaungMel";
+            var response = await _client.PostAsJsonAsync("rewards", request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<CreateRewardResDTO>();
+
+                return result != null
+                    ? ApiResponse<CreateRewardResDTO>.Success(result, "Reward created successfully.")
+                    : ApiResponse<CreateRewardResDTO>.Fail("Failed to parse reward data.");
+            }
+
+            var errorContent = await response.Content.ReadAsStringAsync();
+            return ApiResponse<CreateRewardResDTO>.Fail($"Reward Creation Failed: {response.StatusCode} - {errorContent}");
+        }
+        catch (Exception ex)
+        {
+            return ApiResponse<CreateRewardResDTO>.Fail($"Internal Error: {ex.Message}");
+        }
+    }
 }

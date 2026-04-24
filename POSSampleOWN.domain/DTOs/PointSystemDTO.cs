@@ -191,3 +191,23 @@ public class AccountLookupResponse
     public int LifetimePoints { get; set; }
     public string Tier { get; set; } = string.Empty;
 }
+
+public class CreateRewardReqDTO
+{
+    public string SystemId { get; set; } = "YaungMel";
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public int PointCost { get; set; }
+    public int StockQuantity { get; set; }
+}
+
+public class CreateRewardResDTO
+{
+    public string Id { get; set; }
+    public string SystemId { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public int PointCost { get; set; }
+    public int StockQuantity { get; set; }
+    public bool IsActive { get; set; }
+}

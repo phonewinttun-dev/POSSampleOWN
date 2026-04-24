@@ -133,9 +133,9 @@ public class SaleService : ISaleService
     #endregion
 
     #region Get Sale By Id
-    public ApiResponse<SaleDTO> GetSaleById(long id)
+    public ApiResponse<SaleDTO> GetSaleByVouncherCode(string  voucherCode)
     {
-        var sale = _db.Sales.Include(s => s.SaleItems).FirstOrDefault(s => s.Id == id);
+        var sale = _db.Sales.Include(s => s.SaleItems).FirstOrDefault(s => s.VoucherCode == vouncherCode);
 
         if (sale == null)
             return ApiResponse<SaleDTO>.Fail("Sale not found.");
